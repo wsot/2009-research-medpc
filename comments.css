@@ -1,0 +1,73 @@
+body {
+	color: #000000;
+	font-size: 75%;
+	margin: 0px;
+	padding: 0px;
+	font-weight:normal;
+	/*position:relative;*/
+	
+}
+html, body, div, p, ul, li, input, select, span, td, textarea {
+	font-family: Arial, sans-serif;
+}
+
+table {
+	margin:0.15em 0px 0.15em 0px;
+	border: 1px solid #000000;
+}
+
+caption {
+	background-color: transparent;
+	color: #00395a;
+	font-size: 115%;
+	text-align: left;
+	font-weight:bold;
+	padding:0.25em;
+}
+
+
+th {
+	text-align: left;
+	font-weight:bold;
+	padding:0.25em;
+}
+
+td {
+	padding:0.25em;
+}
+
+td.name{
+	font-weight:bold;
+	color: #004a6f;
+}
+
+td.alias{
+	font-weight:bold;
+	color: #0076bf;
+}
+
+a:link {
+	background-color: transparent;
+	color: #00395a;
+	text-decoration: underline;
+}
+a:visited {
+	background-color: transparent;
+	color: #004a6f;
+	text-decoration: underline;
+}
+a:hover {
+	background-color: transparent;
+	color: #0076bf;
+	text-decoration: underline;
+}
+
+/* Generic Heading Styles */
+
+h1 { background-color: transparent; color: #00395a; font-size: 150%; }
+h2 { background-color: transparent; color: #00395a; font-size: 115%; }
+h3 { background-color: transparent; color: #00395a; font-size: 110%; }
+h4 { background-color: transparent; color: #00395a; font-size: 100%; }
+h5 { background-color: transparent; color: #00395a; font-size: 100%; font-weight:normal;}
+h6 { background-color: transparent; color: #00395a; font-size: 100%; }
+

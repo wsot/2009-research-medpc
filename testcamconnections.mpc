@@ -1,0 +1,51 @@
+\\ Q Array holds MED-VM interface connections status states
+\\ Q(0) = Unconnected 
+\\ Q(1) = Good Connection 
+\\ Q(2) = FAILED Connection
+
+DIM Q = 2         \\ 2 + 1 = 3 element array
+
+S.S.1,
+S1,
+	0":;
+		~Q[0] := UNCONNECTED;
+           Q[1] := CONNECT_OK;
+           Q[2] := CONNECT_FAIL;~;
+		---> S2
+S2,
+	1":;
+		---> S3
+S3,
+	0":;
+		~ IF (box = 1) then begin ConnectToVMEx(MG, BOX, '.', 'BOX1'); O := GetIfaceStatus();end;~;
+		~ IF (box = 2) then begin ConnectToVMEx(MG, BOX, '.', 'BOX2'); O := GetIfaceStatus();end;~;
+		~ IF (box = 3) then begin ConnectToVMEx(MG, BOX, '.', 'BOX3'); O := GetIfaceStatus();end;~;
+		~ IF (box = 4) then begin ConnectToVMEx(MG, BOX, '.', 'BOX4'); O := GetIfaceStatus();end;~;
+		---> S4
+S4,
+	1":;
+		---> S5
+S5,
+	0":;
+		~ IF (box = 1) then begin DisconnectVM('.', 'BOX1'); O := GetIfaceStatus();end;~;
+		~ IF (box = 2) then begin DisconnectVM('.', 'BOX2'); O := GetIfaceStatus();end;~;
+		~ IF (box = 3) then begin DisconnectVM('.', 'BOX3'); O := GetIfaceStatus();end;~;
+		~ IF (box = 4) then begin DisconnectVM('.', 'BOX4'); O := GetIfaceStatus();end;~;
+		---> S6
+S6,
+	1":;
+		---> S3
+
+S.S.2,
+S1,
+	1":;
+		---> S2
+S2,
+	0.01":;
+		IF (O = Q(0)) [@UNCON, @OTHER]
+			 @UNCON: SHOW 1, Unconnected,0 ---> S2
+             @OTHER: IF (O = Q(1)) [@CONNECTED, @OTHER2]
+                @CONNECTED: SHOW 1, Connected OK,0 ---> S2
+                @OTHER2: IF (O = Q(2)) [@FAIL, @OTHER3]
+                   @FAIL:   SHOW 1, Connection Failed,0 ---> S2
+                   @OTHER3: SHOW 1, Unknown State,0  ---> S2

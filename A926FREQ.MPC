@@ -1,0 +1,27 @@
+S.S.1,
+S1,
+  #START: SET A = 1000;                             \ Default Freq = 1000 Hz
+          SET B = 80;                               \ Volume = 100 dB
+          SET C = 10;                               \ Rise\Fall Time = 10 ms
+          SET D = 1000;                             \ Duration = 1000 ms
+          ~InitANL926;~;                            \ Reset ANL-926
+          ~SetFreq(MG, BOX, A);~;                   \ Initialize Frequency
+          ~SetAmp(MG, BOX, B);~;                    \ Initialize Amplitude
+          ~SetRF(MG, BOX, C);~;                     \ Initialize Rise\Fall Time
+          ~SetDur(MG, BOX, D);~;                    \ Initialize Duration
+          SHOW 1,FREQ,A, 2,AMP,B, 3,RF,C, 4,DUR,D;
+          ~OnFreq(MG, BOX, A);~ ---> S2             \ Issue start stimulus
+
+S2,
+  #K1: SET A = A + 200;                             \ Increase frequency
+       SHOW 1,FREQ,A, 2,AMP,B, 3,RF,C, 4,DUR,D;
+       ~OnFreq(MG, BOX, A);~ ---> S2                \ Sound on with new frequency
+  #K2: SET A = A - 200;                             \ Decrease frequency
+       SHOW 1,FREQ,A, 2,AMP,B, 3,RF,C, 4,DUR,D;
+       ~OnFreq(MG, BOX, A);~ ---> S2                \ Sound on with new frequency
+  #K3: SET A = 0;                                   \ Select white noise
+       SHOW 1,FREQ,A, 2,AMP,B, 3,RF,C, 4,DUR,D;
+       ~OnFreq(MG, BOX, A);~ ---> S2                \ Sound on with white noise
+  #K4: SET A = 1000;                                \ Reset frequency to 1000 Hz
+       SHOW 1,FREQ,A, 2,AMP,B, 3,RF,C, 4,DUR,D;
+       ~OnFreq(MG, BOX, A);~ ---> S2                \ Sound on with 1000 Hz

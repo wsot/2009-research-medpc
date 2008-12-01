@@ -1,0 +1,22 @@
+DIM E = 1000
+
+DISKVARS = E
+
+S.S.1,
+S1,
+  .01": ADD A; SHOW 1,TICKS,A ---> S1
+
+
+S.S.2,
+S1,
+  1': ADD B; TIME C,D,E(I); SHOW 2,MINS,B, 3,HH,C, 4,MM,D, 5,SS,E(I); ADD I;
+      IF (I > 1) [@True, @False]
+         @True: IF (E(I-1) > E(I-2) + 1) [@Bad, @Good]
+                   @Bad: SHOW 13,BAD704,I; ADD F ---> S1
+                   @Good: IF (F > 0) [SHOW 13,BAD704,F] ---> S1
+         @False: ---> S1 
+
+
+S.S.3,
+S1,
+  60': SET E(I) = -987.987 ---> STOPABORTFLUSH

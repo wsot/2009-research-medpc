@@ -1,0 +1,480 @@
+\ MedLab8 Chain.mpc  Chain Source Program for MED-PC Version IV
+
+\ Copyright (C) 2007 MED Associates, All Rights Reserved.
+
+\ Constants Used in this Program
+\ Compare the configurations below with the wiring chart supplied
+\ with all system orders.  Edit Input and Output #'s if different
+\ for your system or contact MED Associates for assistance.
+
+\ Standard Input Configuration
+^LeftLever  = 1
+^RightLever = 2
+
+\ Standard Output Configuration
+^Pellet     = 3
+^Dipper     = 3  \ If both Pellet and Dipper are ordered
+                 \ It will be necessary to change one of these
+^LeftLight  = 4
+^RightLight = 5
+^HouseLight = 7
+^Pump       = 8
+
+
+\ Program Constants
+^Left      = 1
+^Right     = 2
+^PrevTrial = -5
+^NextTrial = 5
+
+
+\ A() = Control Variables with Assigned Aliases as Defined
+Var_Alias First FR Correct Lever (Left=1  Right=2)    = A(0)  \ Default = Left Lever
+Var_Alias Second FR Correct Lever (Left=1  Right=2)   = A(1)  \ Default = Right Lever
+Var_Alias Reward (Pellet=1  Dipper=2  Drug=3)         = A(2)  \ Default = Pellet
+Var_Alias Reward Time (sec)                           = A(3)  \ Default = 0.05 seconds
+Var_Alias Time Out Following Reward                   = A(4)  \ Default = 0 seconds
+Var_Alias Session Time (Min)                          = A(5)  \ Default = 60 minutes
+Var_Alias First Fixed Ratio Value                     = A(6)  \ Default = 1
+Var_Alias Second Fixed Ratio Value                    = A(7)  \ Default = 5
+Var_Alias Maximum Reinforcers                         = A(8)  \ Default = 50
+Var_Alias SoftCR Data Array (Yes=1  No=0)             = A(9)  \ Default = Yes
+
+\  Constants for Control Variables Array
+^CorLever     = 0
+^2CorLever    = 1
+^Reward       = 2
+^RewTime      = 3
+^TimeOut      = 4
+^SessTime     = 5
+^FRVal        = 6
+^2FRVal       = 7
+^MaxReinf     = 8
+^SoftCR       = 9
+^RewTimeTicks = 10
+^TimeOutTicks = 11
+
+
+\ B Array Data Variables - First FR
+\  B()    = Trial Data
+\  B(0)   = Total Responses
+\  B(1)   = Correct Response Count
+\  B(2)   = Incorrect Response Count
+\  B(3)   = % Correct
+\  B(4)   = % Incorrect
+\  B(J)   = Trial Number
+\  B(J+1) = Correct Responses
+\  B(J+2) = Incorrect Responses
+\  B(J+3) = Not Used
+\  B(J+4) = Not Used
+
+\ D Array Data Variables - Second FR
+\  D()    = Trial Data
+\  D(0)   = Total Responses
+\  D(1)   = Correct Response Count
+\  D(2)   = Incorrect Response Count
+\  D(3)   = % Correct
+\  D(4)   = % Incorrect
+\  D(H)   = Trial Number
+\  D(H+1) = Correct Responses
+\  D(H+2) = Incorrect Responses
+\  D(H+3) = Not Used
+\  D(H+4) = Not Used
+
+\  Constants for Trial Data Array
+^Total     = 0
+^Correct   = 3
+^Incorrect = 4
+^Trial     = 0
+^CorResp   = 1
+^IncorResp = 2
+
+\  C() = IRT Array and Event Pen Code for Soft Cum. Recorder
+
+\  F = Total Rewards
+
+
+\ List Working Variables Here
+\  I = Subscript for the IRT Array C
+\  J = Subscript for the Trial Array B
+\  K = Elapsed Time in Session
+\  L = Ratio Count
+\  T = Elapsed Time in 0.1 sec Increments for SoftCR Data
+
+
+DIM A = 11
+DIM B = 1000
+DIM C = 10000  \ Dimension Array C for 10001 data points.
+               \ Under MED-PC Version IV, this array may be
+               \ enlarged up to 1 million elements; however,
+               \ 10,000 was felt to be adequate for this application.
+               \ An end of array seal -987.987 will limit the saved
+               \ file to only those elements used during the running
+               \ of the procedure.
+DIM D = 1000
+
+
+\ Z-Pulses Used in this Program
+\  Z1  = Pellet Reinforcement Signal
+\  Z2  = Dipper Reinforcement Signal
+\  Z3  = Pump Reinforcement Signal
+\  Z32 = End of Session Signal
+
+^FR1     = 5
+^FR2     = 6
+^Corr1   = 7
+^Incorr1 = 8
+^Corr2   = 9
+^Incorr2 = 10
+^Event   = 11
+^End     = 32
+
+
+DISKCOLUMNS = 5
+
+
+\***************************************************
+\                   FIXED RATIO SCHEDULE
+\    S1 - Set Default Values
+\         1st FR Correct Lever       (1-Left)
+\         2nd FR Correct Lever       (2-Right)
+\         Reward Device              (1-Pellet)
+\         Reward Time                (0.05 seconds)
+\         Time Out Following Reward  (0 seconds)
+\         Session Time               (60 minutes)
+\         1st Fixed Ratio Value      (1)
+\         2nd Fixed Ratio Value      (5)
+\         Maximum Reinforcers        (50)
+\         SoftCR Activation          (1-Yes)
+\***************************************************
+S.S.1,
+S1,
+  0.001": SET A(^CorLever) = 1, A(^2CorLever) = 2, A(^Reward)  = 1;
+          SET A(^RewTime) = 0.05, A(^TimeOut)  = 0, A(^SessTime) = 60;
+          SET A(^FRVal)   = 1, A(^2FRVal)   = 5, A(^MaxReinf) = 50;
+          SET A(^SoftCR)  = 1;
+          SET J = 5, H = 5 ---> S2
+
+S2,     \ First Statement: Wait for START signal, turn HouseLight ON,
+        \ test for Correct Lever and turn associated stimulus ON.
+        \
+        \ Second Statement: Update screen display with default values
+        \ for Control Variables.  This will show any changes made via
+        \ the "Configure | Change Variables" Window prior to START.
+  #START: CLEAR 1,60; 
+          SET A(^RewTimeTicks) = A(^RewTime) * 1", A(^TimeOutTicks) = A(^TimeOut) * 1";
+          SET B(J+^Trial) = 1, B(J+^NextTrial) = -987.987;
+          SET D(H+^Trial) = 1, D(H+^NextTrial) = -987.987;
+          SHOW 2,Trial #,B(J+^Trial),          3,Reward,F;
+          SHOW 7,1st Tot Cor Rsp,B(^CorResp),  8,1st Tot Incor Rsp,B(^IncorResp);
+          SHOW 12,1st Cor Rsp,B(J+^CorResp),   13,1st Incor Rsp,B(J+^IncorResp);
+          SHOW 17,2nd Tot Cor Rsp,D(^CorResp), 18,2nd Tot Incor Rsp,D(^IncorResp);
+          SHOW 22,2nd Cor Rsp,D(H+^CorResp),   23,2nd Incor Rsp,D(H+^IncorResp);
+          ON ^HouseLight, ^LeftLight, ^RightLight ---> S3
+  1": SHOW 1,1st Lever Corr,A(^CorLever),  2,2nd Lever Corr,A(^2CorLever),  3,Reward,A(^Reward);
+      SHOW 4,Reward Time,A(^RewTime),      5,Time Out,A(^TimeOut),          6,Session Time,A(^SessTime);
+      SHOW 7,1st FR Value,A(^FRVal),       8,2nd FR Value,A(^2FRVal),       9,Max Reinforcers,A(^MaxReinf);
+      SHOW 10,SoftCR Code,A(^SoftCR) ---> SX
+
+S3,      \  Test for 1st Correct Lever
+  #RA(^CorLever): ADD L; Z^Corr1;
+                  IF L >= A(^FRVal) [@FR_Value_Met, @False]
+                     @FR_Met: SET L = 0; Z^FR2 ---> S4
+                     @False: ---> SX
+  #R^LeftLever: Z^Incorr1 ---> SX
+  #R^RightLever: Z^Incorr1 ---> SX
+  #Z^End: ---> S10
+
+S4,      \  Test for 2nd Correct Lever
+  #RA(^2CorLever): ADD L; Z^Corr2;
+                  IF L >= A(^2FRVal) [@FR_Value_Met, @False]
+                     @FR_Met: SET L = 0; ZA(^Reward); Z^Event ---> S5
+                     @False: ---> SX
+  #R^LeftLever: Z^Incorr2 ---> SX
+  #R^RightLever: Z^Incorr2 ---> SX
+  #Z^End: ---> S10
+
+S5,     \ Time Out Interval Following Reward
+  A(^TimeOutTicks)#T: Z^Event;
+                      IF F >= A(^MaxReinf) [@End, @Cont]
+                         @End: SET B(J) = -987.987; Z^End ---> S10
+                         @Cont: SET J = J + 5, B(J+^NextTrial) = -987.987;
+                                SET H = H + 5, D(H+^NextTrial) = -987.987;
+                                SET B(J+^Trial) = B(J+^PrevTrial) + 1;
+                                SET D(H+^Trial) = D(H+^PrevTrial) + 1;
+                                SHOW 2,Trial #,B(J+^Trial); Z^FR1 ---> S3
+  #Z^End: ---> S10
+
+S10,    \ End of Session - Turn Lights Off
+        \ Calculate % Correct and % Incorrect.
+  0.01": OFF ^HouseLight, ^LeftLight, ^RightLight;
+         IF B(^Total) = 0 [@NoCalc, @Calculate]
+            @NoCalc: ---> S11
+            @Calculate: SET B(^Correct) = B(^CorResp) / B(^Total) * 100;
+                        SET B(^Incorrect) = B(^IncorResp) / B(^Total) * 100;
+                        SET D(^Correct) = D(^CorResp) / D(^Total) * 100;
+                        SET D(^Incorrect) = D(^IncorResp) / D(^Total) * 100;
+                        SHOW 9,% Correct,B(^Correct), 10,% Incorrect,B(^Incorrect);
+                        SHOW 19,% Correct,D(^Correct), 20,% Incorrect,D(^Incorrect) ---> S11
+
+S11,    \ Holding State at End of Session
+  1': ---> SX
+
+
+\*********************************************
+\         1st CORRECT LEVER COUNTER
+\*********************************************
+S.S.2,
+S1,
+  #START: ---> S2
+
+S2,
+  #Z^Corr1: ADD B(^Total), B(^CorResp), B(J+^CorResp);
+            SHOW 7,1st Tot Cor Rsp,B(^CorResp), 12,1st Cor Rsp,B(J+^CorResp) ---> SX
+  #Z^End: ---> S1
+
+
+\*********************************************
+\         1st INCORRECT LEVER COUNTER
+\*********************************************
+S.S.3,
+S1,
+  #START: ---> S2
+
+S2,
+  #Z^Incorr1: ADD B(^Total), B(^IncorResp), B(J+^IncorResp);
+              SHOW 8,1st Tot Incor Rsp,B(^IncorResp), 13,1st Incor Rsp,B(J+^IncorResp) ---> SX
+  #Z^End: ---> S1
+
+
+
+\*********************************************
+\         2nd CORRECT LEVER COUNTER
+\*********************************************
+S.S.4,
+S1,
+  #START: ---> S2
+
+S2,
+  #Z^Corr2: ADD D(^Total), D(^CorResp), D(H+^CorResp);
+            SHOW 17,2nd Tot Cor Rsp,D(^CorResp), 22,2nd Cor Rsp,D(H+^CorResp) ---> SX
+  #Z^End: ---> S1
+
+
+\*********************************************
+\         2nd INCORRECT LEVER COUNTER
+\*********************************************
+S.S.5,
+S1,
+  #START: ---> S2
+
+S2,
+  #Z^Incorr2: ADD D(^Total), D(^IncorResp), D(H+^IncorResp);
+              SHOW 18,2nd Tot Incor Rsp,D(^IncorResp), 23,2nd Incor Rsp,D(H+^IncorResp) ---> SX
+  #Z^End: ---> S1
+
+
+\*********************************************
+\            REWARD CONTROL TIMER
+\*********************************************
+S.S.6,
+S1,
+  #Z1: ON ^Pellet ---> S2
+  #Z2: ON ^Dipper ---> S2
+  #Z3: ON ^Pump ---> S2
+
+S2,     \ Time Reward Device for A(2) seconds
+        \ Default value set in S.S.1, S1 & S2
+  A(^RewTimeTicks)#T: OFF ^Pellet, ^Dipper, ^Pump ---> S1
+
+
+\*********************************************
+\              REWARD COUNTER
+\*********************************************
+S.S.7,
+S1,
+  #START: ---> S2
+
+S2,
+  #ZA(^Reward): ADD F; SHOW 3,Reward,F ---> SX
+  #Z^End: ---> S1
+
+
+\**********************************************
+\   INCREMENT TIME T FOR IRT AND EVENT ARRAY
+\**********************************************
+S.S.8,
+S1,
+  #START: IF A(^SoftCR) > 0 [] ---> S2
+
+S2,
+  0.1": ADD T ---> SX
+  #Z^End: ---> S1
+
+
+\*********************************************************
+\ ADD A STEP ELEMENT TO ARRAY C FOR EACH CORRECT RESPONSE
+\*********************************************************
+S.S.9,
+S1,
+  #START: ---> S2
+
+S2,
+  0.01": IF A(^SoftCR) = 1 [@ActivateSoftCR, @NoSoftCR]
+             @ActSoftCR: IF A(^CorLever) = ^Left [@LeftLeverCorrect, @RightLeverCorrect]
+                            @LeftCorrect: ---> S3
+                            @RightCorrect: ---> S4 
+             @NoSoftCR: ---> SX
+
+S3,     \ Left Lever Correct
+  #R^LeftLever: SET C(I) = T + 0.10, T = 0; ADD I;
+                IF I = 10000 [@True, @False]
+                   @True: ---> S1
+                   @False: SET C(I) = -987.987 ---> SX
+  #Z^FR2: ---> S5
+  #Z^End: ---> S1
+
+S4,     \ Right Lever Correct
+  #R^RightLever: SET C(I) = T + 0.10, T = 0; ADD I;
+                 IF I = 10000 [@True, @False]
+                    @True: ---> S1
+                    @False: SET C(I) = -987.987 ---> SX
+  #Z^FR2: ---> S5
+  #Z^End: ---> S1
+
+S5,
+  0.01": IF A(^2CorLever) = ^Left [@LeftLeverCorrect, @RightLeverCorrect]
+            @LeftCorrect: ---> S6
+            @RightCorrect: ---> S7
+
+S6,     \ Left Lever Correct
+  #R^LeftLever: SET C(I) = T + 0.10, T = 0; ADD I;
+                IF I = 10000 [@True, @False]
+                   @True: ---> S1
+                   @False: SET C(I) = -987.987 ---> SX
+  #Z^FR1: ---> S2
+  #Z^End: ---> S1
+
+S7,     \ Right Lever Correct
+  #R^RightLever: SET C(I) = T + 0.10, T = 0; ADD I;
+                 IF I = 10000 [@True, @False]
+                    @True: ---> S1
+                    @False: SET C(I) = -987.987 ---> SX
+  #Z^FR1: ---> S2
+  #Z^End: ---> S1
+
+
+\*************************************************************
+\ ADD AN EVENT ELEMENT TO ARRAY C FOR EACH INCORRECT RESPONSE
+\      ADDITIONAL EVENT ELEMENTS MAY BE ADDED AS NEEDED
+\          FOR EXAMPLE TO MARK TIME OUT INTERVALS.
+\*************************************************************
+S.S.10,
+S1,
+  #START: ---> S2
+
+S2,
+  0.01": IF A(^SoftCR) = 1 [@ActivateSoftCR, @NoSoftCR]
+             @ActSoftCR: SET C(I) = 0.50, I = I + 1, C(I) = -987.987;
+                         IF A(^CorLever) = ^Right [@LeftLeverIncorrect, @RightLeverIncorrect]
+                            @LeftIncorrect: ---> S3
+                            @RightIncorrect: ---> S4
+             @NoSoftCR: SET C(0) = -987.987 ---> SX  \ Seal Array
+
+S3,     \ Left Lever Incorrect
+  #R^LeftLever: SET C(I) = T + 0.60, C(I+1) = 0.50, T = 0, I = I + 2;
+                IF I >= 10000 [@True, @False]
+                   @True: ---> S1
+                   @False: SET C(I) = -987.987 ---> SX
+  #Z^FR2: ---> S5
+  #Z^End: ---> S1
+
+S4,     \ Right Lever Incorrect
+  #R^RightLever: SET C(I) = T + 0.60, C(I+1) = 0.50, T = 0, I = I + 2;
+                 IF I >= 10000 [@True, @False]
+                    @True: ---> S1
+                    @False: SET C(I) = -987.987 ---> SX
+  #Z^FR2: ---> S5
+  #Z^End: ---> S1
+
+S5,
+  0.01": IF A(^2CorLever) = ^Right [@LeftLeverIncorrect, @RightLeverIncorrect]
+            @LeftIncorrect: ---> S6
+            @RightIncorrect: ---> S7
+
+S6,     \ Left Lever Incorrect
+  #R^LeftLever: SET C(I) = T + 0.60, C(I+1) = 0.50, T = 0, I = I + 2;
+                IF I >= 10000 [@True, @False]
+                   @True: ---> S1
+                   @False: SET C(I) = -987.987 ---> SX
+  #Z^FR1: ---> S2
+  #Z^End: ---> S1
+
+S7,     \ Right Lever Incorrect
+  #R^RightLever: SET C(I) = T + 0.60, C(I+1) = 0.50, T = 0, I = I + 2;
+                 IF I >= 10000 [@True, @False]
+                    @True: ---> S1
+                    @False: SET C(I) = -987.987 ---> SX
+  #Z^FR1: ---> S2
+  #Z^End: ---> S1
+
+
+\****************************************************
+\    ADD A PIP ELEMENT TO ARRAY C FOR EACH REWARD
+\****************************************************
+S.S.11,
+S1,
+   #START: IF A(^SoftCR) > 0 [] ---> S2
+
+S2,
+  #Z1 ! #Z2 ! #Z3: SET C(I) = T + 0.20, T = 0; ADD I;
+                   IF I = 10000 [@True, @False]
+                      @True: ---> S1
+                      @False: SET C(I) = -987.987 ---> SX
+  #Z^End: SET C(I) = T + 0.31, I = I + 1, C(I) = -987.987 ---> S1
+
+
+\*************************************************************
+\     ADD AN EVENT ELEMENT TO ARRAY C FOR THE TIME-OUT
+\*************************************************************
+S.S.12,
+S1,
+  #START: IF A(^SoftCR) = 1 [@ActivateSoftCR, @NoSoftCR]
+             @ActSoftCR: SET C(I) = 0.51, I = I + 1, C(I) = -987.987;
+                         IF A(^TimeOut) = 0 [@NoEvent, @Record]
+                            @NoEvent: ---> SX
+                            @Record: ---> S2
+             @NoSoftCR: SET C(0) = -987.987 ---> SX  \ Seal Array
+
+S2,     \ Start Event Pen, Up
+  #Z^Event: SET C(I) = T + 0.61, T = 0; ADD I;
+            IF I >= 10000 [@True, @False]
+               @True: ---> S1
+               @False: SET C(I) = -987.987 ---> S3
+  #Z^End: ---> S1
+
+S3,     \ Stop Event Pen, Down
+  #Z^Event: SET C(I) = T + 0.51, T = 0; ADD I;
+            IF I >= 10000 [@True, @False]
+               @True: ---> S1
+               @False: SET C(I) = -987.987 ---> S2
+  #Z^End: ---> S1
+
+
+\*********************************************
+\                SESSION CLOCK
+\*********************************************
+S.S.32,
+S1,
+  #START: SHOW 1,Session,K ---> S2
+
+S2,
+  1": ADD K; SHOW 1,Session,K/60;
+      IF K/60 >= A(^SessTime) [@EndSession, @ContinueTiming]
+         @End: Z^End ---> S3
+         @Cont: ---> SX
+  #Z^End: ---> S3
+
+S3,     \ Wait for Screen Update and end with
+        \ STOPABORTFLUSH for Automatic Data Saving
+  2": ---> STOPABORTFLUSH

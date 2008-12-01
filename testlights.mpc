@@ -1,0 +1,47 @@
+\\\<output name="Out_HouseLightRear" summary="Output ID of rear-most house light."><use>OFF->unlit, ON->lit</use></output>
+^Out_HouseLightRear = 9
+\\\<output name="Out_HouseLightMid" summary="Output ID of miidle house light."><use>OFF->unlit, ON->lit</use></output>
+^Out_HouseLightMid = 10
+\\\<output name="Out_HouseLightFront" summary="Output ID of front-most house light."><use>OFF->unlit, ON->lit</use></output>
+^Out_HouseLightFront = 11
+\\\<output name="Out_LedRed" summary="Output ID of Red LED (rearmost)."><use>OFF->unlit, ON->lit</use></output>
+^Out_LedRed = 12
+\\\<output name="Out_LedGreen" summary="Output ID of Green LED (frontmost)."><use>OFF->unlit, ON->lit</use></output>
+^Out_LedGreen = 13
+\\\<output name="Out_LedYellow" summary="Output ID of Yellow LED (middle)."><use>OFF->unlit, ON->lit</use></output>
+^Out_LedYellow = 14
+
+S.S.1,
+S1,
+	0.5":;
+		ON ^Out_HouseLightRear;
+		---> S2
+S2,
+	0.5":;
+		ON ^Out_HouseLightMid;
+		---> S3
+S3,
+	0.5":;
+		ON ^Out_HouseLightFront;
+		---> S4
+S4,
+	0.5":;
+		ON ^Out_LedRed;
+		---> S5
+S5,
+	0.5":;
+		ON ^Out_LedYellow;
+		---> S6
+S6,
+	0.5":;
+		ON ^Out_LedGreen;
+		---> S7
+S7,
+	0.5":;
+		OFF ^Out_HouseLightRear;
+		OFF ^Out_HouseLightMid;
+		OFF ^Out_HouseLightFront;
+		OFF ^Out_LedRed;
+		OFF ^Out_LedYellow;
+		OFF ^Out_LedGreen;
+		---> S1

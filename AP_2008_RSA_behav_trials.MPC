@@ -352,7 +352,7 @@ LIST F = 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23 \,24,25,2
 \\\</array>
 
 \\\<array name="I" summary="Integer list representing reward Z-values for reward delivery">
-LIST I = 1
+LIST I = 2
 \\\TODO <column name="F_ToneConfigNumber" summary="Tone Configuration Number"></column>
 \\\</array>
 
@@ -514,12 +514,12 @@ S3,
 S9,
 	#START:;
 		SHOW 5, Running, 0;
-
+		Z^ZP_StartVideoRec;
+		ON ^Out_HouseLightRear;
 		SET G(^G_InterToneDelaySec) = ((^Snd_ToneBurstDuration / 1000) + (G(^G_InterToneDelay) / 1000)) * 1";
 		SET G(^G_PreToneDelaySec) = (G(^G_PreToneDelay) / 1000) * 1";
 		SET G(^G_AllowedResponseDelay) = (G(^G_AllowedResponseDelaySec)) * 1";
 		SET G(^G_MaxDurationMsec) = G(^G_MaxDuration) * 60000; \convert minutes to milliseconds
-		Z^ZP_StartVideoRec;
 		---> S10
 	0.01":;
 		SHOW 1, Max duration, G(^G_MaxDuration);
@@ -541,6 +541,7 @@ S10,
 \\\<state id="10" summary="Turn off all outputs, save data and end">
 S20,   
   0":;
+	OFF ^Out_HouseLightRear;
 	SHOW 5, Experiment finished, 1;	
   	---> STOPABORTFLUSH
 \\\</state>

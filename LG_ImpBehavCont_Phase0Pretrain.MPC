@@ -124,6 +124,11 @@ Var_Alias Maximum same-lever presses				= C(3)
 
 \\\<constant group="z-pulse" represents="parameter" name="ZP_TerminateExperiment" summary="End the experiment - may be used if error occurrs"></constant>
 ^ZP_TerminateExperiment = 4
+\\\<constant group="z-pulse" represents="parameter" name="ZP_ExperimentEnd" summary="Trigged to end the experiment"></constant>
+^ZP_ExperimentEnd = 14
+\\\<constant group="k-pulse" represents="parameter" name="KP_ExperimentEnd" summary="Trigger the experiment to end"></constant>
+^KP_ExperimentEnd = 1
+
 
 \\\<constant group="z-pulse" represents="parameter" name="ZP_HouseLightsOn" summary="Turn on house lights"></constant>
 ^ZP_HouseLightsOn = 5
@@ -143,9 +148,6 @@ Var_Alias Maximum same-lever presses				= C(3)
 ^ZP_ExtendLeverAll = 11
 \\\<constant group="z-pulse" represents="parameter" name="ZP_RetractLeverAll" summary="Retract all levers"></constant>
 ^ZP_RetractLeverAll = 12
-
-\\\<constant group="z-pulse" represents="parameter" name="ZP_DurationReached" summary="Trigged when experiment reaches maximum time"></constant>
-^ZP_DurationReached = 13
 
 \\\ARRAYS
 \\\<array name="A" outputName="Trial overview" summary="Trial summary data">
@@ -284,6 +286,9 @@ S1,
 \\\</state>
 \\\<state id="3" summary="Update trial data, reset stimulus lights">
 S3,
+  #Z^ZP_ExperimentEnd:; \\duration of experiment reached - issue termination and stop
+		Z^ZP_TerminateExperiment;
+		---> S32
 	0":;
 		SHOW 5, Running, 1;
 		Z^ZP_StimLightsOn;
@@ -292,7 +297,9 @@ S3,
 \\\</state>
 \\\<state id="5" summary="Wait for correct lever press">
 S5,
-
+  #Z^ZP_ExperimentEnd:; \\duration of experiment reached - issue termination and stop
+		Z^ZP_TerminateExperiment;
+		---> S32
   #R^Inp_LeverTrigger:;
 	IF A(^A_LastLeverPressed) = ^Lever_CentreLever [@hit same lever as previous, @hit different lever]
 		@hit same lever:; \\check if already hit this lever maximum subsequent times
@@ -340,9 +347,6 @@ S5,
 		SHOW 6, Right Lever Pressed, A(^A_TimesLeverPressed);
 		SET A(^A_LastLeverPressed) = ^Lever_RightLever;
 		---> S6
-  #Z^ZP_DurationReached:; \\duration of experiment reached - issue termination and stop
-		Z^ZP_TerminateExperiment;
-		---> S32
 \\\</state>
 \\\<state id="6" summary="Record press; Turn off left and right stim lights; give reward">
 S6,
@@ -413,16 +417,8 @@ S31,
 		SHOW 36, Irrelevant Presses, A(^A_TotalIrrelevantPresses);
 		SHOW 41 + (A(^A_SuccessfulTrials) * 2), Trial, A(^A_SuccessfulTrials);
 		SHOW 42 + (A(^A_SuccessfulTrials) * 2), Irrelevant Presses, B(Q + ^B_IrrelevantLeverPresses);
-		IF T >= C(^C_MaxDurationMsec) [@hit max time, @less than max time]
-			@hit max time:;
-				Z^ZP_TerminateExperiment;
-				Z^ZP_DurationReached;
-				SHOW 2, Max Time Reached, 0;
-				SHOW 30, Jump to state, 32;
-				---> S32
-			@less than max time:; \experiment not yet ended; restart
-				SHOW 30, Jump to state, 3;
-				---> S3
+		SHOW 30, Jump to state, 3;
+		---> S3
 \\\</state>
 \\\</stateset>
 
@@ -619,17 +615,24 @@ S1,
 \\\<state id="2" summary="Every cycle, check if max duration of experiment reached">
 \\\</state>
 S2,
+	#K^KP_ExperimentEnd:;
+				SHOW 5, Manually terminated, 0;
+				---> S3
 	0.01":;
 		SHOW 2, Remaining Time (m.s), ((C(^C_MaxDuration) - (A(^A_CurrentHours) * 60) - A(^A_CurrentMinutes)) - ((A(^A_CurrentSeconds) + 40) / 100));
 		IF T >= C(^C_MaxDurationMsec) [@hit max time]
 			@hit max time:;
 				SHOW 2, Max Time Reached, 0;
-				Z^ZP_DurationReached;
-				---> S32
-	#Z^ZP_TerminateExperiment:;
-		---> S32
+				---> S3
+\\\</state>
+\\\<state id="3" summary="Trigger a ZP_ExperimentEnd every 10ms - this will make sure that everything receives it even">
+S3,
+	0.01":;
+		Z^ZP_ExperimentEnd;
+		---> SX
 \\\</state>
 \\\</stateset>
+
 
 S.S.20,
 S1,

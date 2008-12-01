@@ -23,8 +23,8 @@ Y2KCOMPLIANT \\\Force use of 4-digit year
 \\\<constant group="general" represents="parameter" name="Abs_MaxTrials" summary="Limit on maximum number of trials to be recorded/processed"></constant>
 ^Abs_MaxTrials = 10000
 
-\\\<constant group="general" represents="parameter" name="Def_RewardLicks" summary="Default number of licks for a reward"></constant>
-^Def_RewardLicks = 2
+\\\<constant group="general" represents="parameter" name="Def_RewardPellets" summary="Default number of licks for a reward"></constant>
+^Def_RewardPellets = 2
 
 \\\<constant group="general" represents="parameter" name="Lever_LeftLever" summary="Value used to represent left lever"></constant>
 ^Lever_LeftLever = 0
@@ -34,18 +34,18 @@ Y2KCOMPLIANT \\\Force use of 4-digit year
 ^Lever_CentreLever = 2
 
 \\\<constant group="general" represents="parameter" name="Lights_UseHouseRear" summary="Whether to use rear house light (No=0 Yes=1)"></constant>
-^Lights_UseHouseRear = 1
+^Lights_UseHouseRear = 0
 \\\<constant group="general" represents="parameter" name="Lights_UseHouseMid" summary="Whether to use middle house light (No=0 Yes=1)"></constant>
 ^Lights_UseHouseMid = 1
 \\\<constant group="general" represents="parameter" name="Lights_UseHouseFront" summary="Whether to use front house light (No=0 Yes=1)"></constant>
-^Lights_UseHouseFront = 1
+^Lights_UseHouseFront = 0
 
 \\\<array name="C" outputName="Configuration" summary="Operational variables - should not change over the duration of the task once set">
 DIM C = 4
 \\\<column name="C_MaxTrials" outputName="Max Trials" summary="Maximum time before automatic termination (minutes)"></column>
 ^C_MaxTrials = 0
-\\\<column name="C_RewardLicks" outputName="Reward Licks" summary="Number off licks permitted for small reward"></column>
-^C_RewardLicks = 1
+\\\<column name="C_RewardPellets" outputName="Reward Licks" summary="Number off licks permitted for small reward"></column>
+^C_RewardPellets = 1
 \\\<column name="C_CamUnconnectedState" summary="Used to store 'Unconnected' StateID of camera"></column>
 ^C_CamUnconnectedState = 2
 \\\<column name="C_CamConnectOkState" summary="Used to store 'Ok' StateID of camera"></column>
@@ -58,7 +58,7 @@ DIM C = 4
 \\\<!--<variable alias="" name="" summary=""></variable>-->
 \\\<variable alias="Maximum Duration" name="C(^C_MaxTrials)" summary="Maximum trials before automatic termination"></variable>
 Var_Alias Maximum Trials							= C(0)
-\\\<variable alias="Reward Licks Count" name="C(^C_RewardLicks)" summary="How many licks are permitted for reward"></variable>
+\\\<variable alias="Reward Pellets Count" name="C(^C_RewardPellets)" summary="How many pellets are given for reward"></variable>
 Var_Alias Reward Lick Count							= C(1)
 
 
@@ -106,43 +106,47 @@ Var_Alias Reward Lick Count							= C(1)
 ^Out_LedGreen = 13
 \\\<output name="Out_LedYellow" summary="Output ID of Yellow LED (middle)."><use>OFF->unlit, ON->lit</use></output>
 ^Out_LedYellow = 14
+\\\<output name="Out_TrayLight" summary="Output ID of Tray light (shared output # with yellow LED)."><use>OFF->unlit, ON->lit</use></output>
+^Out_TrayLight = 14
 
-\\\<constant group="z-pulse" represents="parameter" name="ZP_ExtendSipper" summary="Trigger extend sipper; set S for max # of sips before retraction"></constant>
-^ZP_ExtendSipper = 1
-\\\<constant group="z-pulse" represents="parameter" name="ZP_SipperLimitHit" summary="Triggers when the sipper limit is hit; if S less than 0 then never triggered."></constant>
-^ZP_SipperLimitHit = 2
-\\\<constant group="z-pulse" represents="parameter" name="ZP_RetractSipper" summary="Trigger sipper retract, regardless of whether sipper limit hit"></constant>
-^ZP_RetractSipper = 3
 
 \\\<constant group="z-pulse" represents="parameter" name="ZP_TerminateExperiment" summary="End the experiment - may be used if error occurrs"></constant>
-^ZP_TerminateExperiment = 4
+^ZP_TerminateExperiment = 1
+\\\<constant group="z-pulse" represents="parameter" name="ZP_ExperimentEnd" summary="Trigged to end the experiment"></constant>
+^ZP_ExperimentEnd = 2
+\\\<constant group="k-pulse" represents="parameter" name="KP_ExperimentEnd" summary="Trigger the experiment to end"></constant>
+^KP_ExperimentEnd = 1
 
 \\\<constant group="z-pulse" represents="parameter" name="ZP_HouseLightsOn" summary="Turn on house lights"></constant>
-^ZP_HouseLightsOn = 5
+^ZP_HouseLightsOn = 3
 \\\<constant group="z-pulse" represents="parameter" name="ZP_HouseLightsOff" summary="Turn off house lights"></constant>
-^ZP_HouseLightsOff = 6
-\\\<constant group="z-pulse" represents="parameter" name="ZP_StimLightsOn" summary="Turns on all stimulus lights"></constant>
-^ZP_StimLightsOn = 7
-\\\<constant group="z-pulse" represents="parameter" name="ZP_StimLightsMid" summary="Switch on only middle stim light on"></constant>
-^ZP_StimLightsMid = 8
-\\\<constant group="z-pulse" represents="parameter" name="ZP_StimLightsOff" summary="Switch off all stim lights"></constant>
-^ZP_StimLightsOff = 9
+^ZP_HouseLightsOff = 4
+
+\\\<constant group="z-pulse" represents="parameter" name="ZP_GivePellets" summary="Dispense the number of pellets provided by S"></constant>
+^ZP_GivePellets = 5
+\\\<constant group="z-pulse" represents="parameter" name="ZP_PelletsGiven" summary="Triggered when the full number of pellets has been delivered (number = S)"></constant>
+^ZP_PelletsGiven = 6
 
 
 \\\<constant group="z-pulse" represents="parameter" name="ZP_ExtendLeverSingle" summary="Extend single lever determined by A(^A_CurrentLever)"></constant>
-^ZP_ExtendLeverSingle = 10
+^ZP_ExtendLeverSingle = 7
 \\\<constant group="z-pulse" represents="parameter" name="ZP_ExtendLeverAll" summary="Extend all levers"></constant>
-^ZP_ExtendLeverAll = 11
+^ZP_ExtendLeverAll = 8
 \\\<constant group="z-pulse" represents="parameter" name="ZP_RetractLeverAll" summary="Retract all levers"></constant>
-^ZP_RetractLeverAll = 12
+^ZP_RetractLeverAll = 9
 
 \\\<constant group="z-pulse" represents="parameter" name="ZP_NewTrial" summary="Trigged when a single trial duration is reached"></constant>
-^ZP_NewTrial = 13
+^ZP_NewTrial = 10
 
 \\\<constant group="z-pulse" represents="parameter" name="ZP_TimerStart" summary="Used to start a 'timer' which will trigger a ZP_TimerReached when time passed - set V with delay milliseconds"></constant>
-^ZP_TimerStart = 14
+^ZP_TimerStart = 11
 \\\<constant group="z-pulse" represents="parameter" name="ZP_TimerReached" summary="Triggered when the timer is triggered, and then reached"></constant>
-^ZP_TimerReached = 15
+^ZP_TimerReached = 12
+
+\\\<constant group="z-pulse" represents="parameter" name="ZP_StartVideoRec" summary="Start video recording"></constant>
+^ZP_StartVideoRec = 13
+\\\<constant group="z-pulse" represents="parameter" name="ZP_EndVideoRec" summary="End video recording"></constant>
+^ZP_EndVideoRec = 14
 
 \\\ARRAYS
 \\\<array name="A" outputName="Trials overview" summary="Trial summary data">
@@ -204,7 +208,7 @@ LIST D = 0,1
 
 \\\Variable declarations
 \\\<!--<variable name="" summary=""></variable>-->
-\\\<variable name="O" summary="Camera status"></variable>
+\\\<variable name="P" summary="Storage variable for camera state"></variable>
 \\\<variable name="Q" summary="Current offset for B array"></variable>
 \\\<variable name="R" summary="Inter-trial pause (generated)"></variable>
 \\\<variable name="S" summary="Number of sips remaining before sipper retract - set before using ZP_ExtendSipper"></variable>
@@ -222,44 +226,26 @@ S.S.1,
 S1,
 	0":;
 		SET C(^C_MaxTrials) = ^Def_MaxTrials;
-		SET C(^C_RewardLicks) = ^Def_RewardLicks;
-		~C[2] := UNCONNECTED;
-        C[3] := CONNECT_OK;
-        C[4] := CONNECT_FAIL;~;
+		SET C(^C_RewardPellets) = ^Def_RewardPellets;
 		---> S5
 \\\</state>
 \\\<state id="5" summary="Pause until start command is issued; Update displayed variables.">
 S5,
 	#START:;
-		~ IF ((box = 1) and (O = CONNECT_OK)) then begin WriteEventVM('.', 'BOX1', StartSavingEvent, 'StartEvent'); end; ~;
-		~ IF ((box = 2) and (O = CONNECT_OK)) then begin WriteEventVM('.', 'BOX2', StartSavingEvent, 'StartEvent'); end; ~;
-		~ IF ((box = 3) and (O = CONNECT_OK)) then begin WriteEventVM('.', 'BOX3', StartSavingEvent, 'StartEvent'); end; ~;
-		~ IF ((box = 4) and (O = CONNECT_OK)) then begin WriteEventVM('.', 'BOX4', StartSavingEvent, 'StartEvent'); end; ~;
+		Z^ZP_StartVideoRec;
 		---> S10
 	0.01":;
 		SHOW 1, Maxmimum Trials, C(^C_MaxTrials);
 		SHOW 3, Completed Trials, 0;
 		SHOW 4, Successful Trials, 0;
 		SHOW 5, Awaiting start, 0;
-		SHOW 12, Reward licks, C(^C_RewardLicks); 
-		~ IF ((box = 1) and (O <> CONNECT_OK)) then begin ConnectToVMEx(MG, BOX, '.', 'BOX1'); O := GetIfaceStatus();end;~;
-		~ IF ((box = 2) and (O <> CONNECT_OK)) then begin ConnectToVMEx(MG, BOX, '.', 'BOX2'); O := GetIfaceStatus();end;~;
-		~ IF ((box = 3) and (O <> CONNECT_OK)) then begin ConnectToVMEx(MG, BOX, '.', 'BOX3'); O := GetIfaceStatus();end;~;
-		~ IF ((box = 4) and (O <> CONNECT_OK)) then begin ConnectToVMEx(MG, BOX, '.', 'BOX4'); O := GetIfaceStatus();end;~;
+		SHOW 12, Reward pellets, C(^C_RewardPellets); 
 		---> SX
 \\\</state>
 \\\<state id="10" summary="Wait for program termination">
 S10,
 	#Z^ZP_TerminateExperiment:;
 		SHOW 5, Finished, 2;
-		~ IF ((box = 1) and (O = CONNECT_OK)) then begin WriteEventVM('.', 'BOX1', StopSavingEvent, 'StopEvent'); end; ~;
-		~ IF ((box = 2) and (O = CONNECT_OK)) then begin WriteEventVM('.', 'BOX2', StopSavingEvent, 'StopEvent'); end; ~;
-		~ IF ((box = 3) and (O = CONNECT_OK)) then begin WriteEventVM('.', 'BOX3', StopSavingEvent, 'StopEvent'); end; ~;
-		~ IF ((box = 4) and (O = CONNECT_OK)) then begin WriteEventVM('.', 'BOX4', StopSavingEvent, 'StopEvent'); end; ~;
-		~ IF ((box = 1) and (O <> CONNECT_OK)) then begin DisconnectVM('.', 'BOX1'); O := GetIfaceStatus();end;~;
-		~ IF ((box = 2) and (O <> CONNECT_OK)) then begin DisconnectVM('.', 'BOX2'); O := GetIfaceStatus();end;~;
-		~ IF ((box = 3) and (O <> CONNECT_OK)) then begin DisconnectVM('.', 'BOX3'); O := GetIfaceStatus();end;~;
-		~ IF ((box = 4) and (O <> CONNECT_OK)) then begin DisconnectVM('.', 'BOX4'); O := GetIfaceStatus();end;~;
 		SET B(Q + ^B_TrialIndexMultiplier + ^B_TrialNumber) = -987.987;
 		---> S20
 
@@ -298,7 +284,7 @@ S3,
 		SET B(Q + ^B_FirstLickDelay) = -1;
 
 		Z^ZP_HouseLightsOn;
-		Z^ZP_StimLightsOn;
+		ON ^Out_TrayLight;
 		SET V = 10000; \\set max time for next step (10 sec = 10000msec)
 		Z^ZP_TimerStart;
 		---> S4
@@ -309,12 +295,12 @@ S4,
 		\\no press; update records turn off all lights and jump to pause state
 		SET B(Q + ^B_CentrePressDelay) = -1;
 		Z^ZP_HouseLightsOff;
-		Z^ZP_StimLightsOff;
+		OFF ^Out_TrayLight;
 		---> S30
 
-	#R^Inp_LeverTrigger:;
+	#R^Inp_HeadEntry:;
 		SET B(Q + ^B_CentrePressDelay) = T - B(Q + ^B_TrialMsec); \calculate MSEC between trial start and lever press
-		Z^ZP_StimLightsOff;
+		OFF ^Out_TrayLight;
 		Z^ZP_ExtendLeverSingle;
 		SET V = 10000; \\set max time for next step (10 sec = 10000msec)
 		Z^ZP_TimerStart;
@@ -323,10 +309,6 @@ S4,
 \\\</state>
 \\\<state id="7" summary="Wait for 10 seconds, or correct lever press">
 S7,
-  #R^Inp_LeverTrigger:;
-	SHOW 7, Centre Lever Pressed, T;
-	ADD B(Q + ^B_FalseCentreHits); \add 1 to number of 'incorrect' centre hits
-	---> SX
   #R^Inp_LeverInputLeft:;
 	SHOW 7, Left Lever Pressed, T;
 	IF A(^A_CurrentLever) = ^Lever_LeftLever [@hit active lever]
@@ -341,7 +323,7 @@ S7,
   #Z^ZP_TimerReached:;
 	SET B(Q + ^B_SecondPressDelay) = -1; \\record failure to press
 	Z^ZP_HouseLightsOff;
-	Z^ZP_StimLightsOff;
+	OFF ^Out_TrayLight;
 	Z^ZP_RetractLeverAll;
 	\\no press; update records turn off all lights and jump to pause state
 	---> S30
@@ -353,23 +335,25 @@ S8,
 		SET B(Q + ^B_TrialSuccessful) = 1; \\record trial as successful
 		SET B(Q + ^B_SecondPressDelay) = T - B(Q + ^B_TrialMsec) - 10; \calculate MSEC between trial start and lever press
 		ADD A(^A_SuccessfulTrials);
-		Z^ZP_StimLightsMid;
-		SET S = C(^C_RewardLicks);
-		Z^ZP_ExtendSipper;
+		ON ^Out_TrayLight;
+		SET S = C(^C_RewardPellets);
+		Z^ZP_GivePellets;
 		Z^ZP_RetractLeverAll;
 
 		SET V = 10000; \\set max time for next step (10 sec = 10000msec)
-		Z^ZP_TimerStart;
 		---> S9
 \\\</state>
-\\\<state id="9" summary="Wait until lick count has his the value of S - i.e. ZP_SipperLimitHit">
+\\\<state id="9" summary="Wait until full number of reward pellets dispensed, then continue">
 S9,
-  #Z^ZP_SipperLimitHit:;
-		SET B(Q + ^B_LickDelay) = T - B(Q + ^B_TrialMsec); \record how long it took before the rat reached the number of licks
-		---> SX
+	#Z^ZP_PelletsGiven":;
+		Z^ZP_TimerStart;
+		SHOW 30, Jump to state, 10;
+		---> S10
+\\\</state>
+\\\<state id="10" summary="Wait for eating delay, then continue">
+S10,
   #Z^ZP_TimerReached:;
-		Z^ZP_RetractSipper; \\retract the sipper if not already retracted
-		Z^ZP_StimLightsOff;
+		OFF ^Out_TrayLight;
 		Z^ZP_HouseLightsOff;
 		---> S30
 	
@@ -394,58 +378,42 @@ S31,
 \\\</state>
 \\\</stateset>
 
-\\\<stateset id="3" summary="Operate the sipper">
+
+\\\<stateset id="3" summary="Operate the pellet dispenser">
 S.S.3,
-\\\<state id="1" summary="Wait for sipper extend (ZP_ExtendSipper) to be triggered">
+\\\<state id="1" summary="Wait for give pellets (ZP_GivePellets) to be triggered">
 S1,
-	#Z^ZP_ExtendSipper:;
-		OFF ^Out_LickShockSwitch; \precautionary; should already be off.
-		ON ^Out_LiquidDispenser;
-		IF S <= 0 [@no sip limit, @sip limit]
-			@no sip limit:;
-				---> S3
-			@sip limit:;
-				---> S5
+	#Z^ZP_GivePellets:;
+		IF S > 0 [@have pellet count to give, @give no pellets]
+			@have pellets to give:;
+				ON ^Out_PelletDispenser;
+				SUB S;
+				---> S2
+			@give no pellets:;
+				Z^ZP_PelletsGiven;
+				---> S1
 \\\</state>
-\\\<state id="3" summary="Extend sipper until ZP_RetractSipper occurs">
+\\\<state id="2" summary="Pause 100ms between pellet dispenser trigger going high and back to low">
+S2,
+	0.1":;
+		OFF ^Out_PelletDispenser;
+		---> S3
+\\\</state>
+\\\<state id="3" summary="Drop pellets until full number of reward pellets reached">
 S3,
-	#Z^ZP_RetractSipper:;
-		OFF ^Out_LiquidDispenser;
-		---> S1
-\\\</state>
-\\\<state id="5" summary="Extend sipper until ZP_RetractSipper occurs or max sips hit">
-S5,
-	#Z^ZP_RetractSipper:;
-		OFF ^Out_LiquidDispenser;
-		---> S1
-	S#R^Inp_Lickometer:;
-		Z^ZP_SipperLimitHit;
-		OFF ^Out_LiquidDispenser;
-		---> S1
+	0.4":;
+		IF S > 0 [@still pellets to drop, @sufficient pellets]
+			@still pellets to drop:;
+				SUB S;
+				ON ^Out_PelletDispenser;
+				---> S2
+			@sufficient pellets:;
+				Z^ZP_PelletsGiven;
+				---> S1
 \\\</state>
 \\\</stateset>
 
-\\\<stateset id="4" summary="Count sips and add to each trial">
-S.S.4,
-\\\<state id="1" summary="Wait for sipper extend (ZP_ExtendSipper) to be triggered">
-S1,
-	#Z^ZP_ExtendSipper:; \when sipper extended, start counting
-				---> S2
-\\\</state>
-\\\<state id="2" summary="Count number of sips until retraction occurs or sipper limit hit">
-S2,
-	#R^Inp_Lickometer:;
-		ADD B(Q + ^B_LickCount);
-		IF B(Q + ^B_LickCount) = 1 [@first lick]
-			@first lick:;
-				SET B(Q + ^B_FirstLickDelay) = T - B(Q + ^B_TrialMsec); 
-				---> SX
-	#Z^ZP_RetractSipper:;
-		---> S1
-	#Z^ZP_SipperLimitHit:;
-		---> S1
-\\\</state>
-\\\</stateset>
+
 
 \\\<stateset id="5" summary="Control house light system">
 S.S.5,
@@ -484,30 +452,6 @@ S1,
 		OFF ^Out_HouseLightRear;
 		OFF ^Out_HouseLightMid;
 		OFF ^Out_HouseLightFront;
-		---> SX
-	#Z^ZP_TerminateExperiment:;
-		---> S32
-\\\</state>
-\\\</stateset>
-
-\\\<stateset id="6" summary="Control stimulus light system">
-S.S.6,
-\\\<state id="1" summary="Wait for lighting change command">
-S1,
-	#Z^ZP_StimLightsOn:; 
-		ON ^Out_LedRed;
-		ON ^Out_LedGreen;
-		ON ^Out_LedYellow;
-		---> SX
-	#Z^ZP_StimLightsOff:; 
-		OFF ^Out_LedRed;
-		OFF ^Out_LedGreen;
-		OFF ^Out_LedYellow;
-		---> SX
-	#Z^ZP_StimLightsMid:; 
-		OFF ^Out_LedRed;
-		OFF ^Out_LedGreen;
-		ON ^Out_LedYellow;
 		---> SX
 	#Z^ZP_TerminateExperiment:;
 		---> S32
@@ -623,15 +567,57 @@ S2,
 \\\</state>
 \\\</stateset>
 
-S.S.20,
+\\\<stateset id="15" summary="Camera management - connect to camera system and start/stop video">
+S.S.15,
+\\\<state id="1" summary="Set constants for video connection state">
 S1,
-	0.01":;
-		IF (O = C(^C_CamUnconnectedState)) [@UNCON, @OTHER]
-			 @UNCON: SHOW 14, Video Unconnected,0 ---> S1
-             @OTHER: IF (O = C(^C_CamConnectOkState)) [@CONNECTED, @OTHER2]
-                @CONNECTED: SHOW 14, Video OK,0 ---> S1
-                @OTHER2: IF (O = C(^C_CamConnectFailState)) [@FAIL, @OTHER3]
-                   @FAIL:   SHOW 14, Video Failed,0 ---> S1
-                   @OTHER3: SHOW 14, Video Unknown,0  ---> S1
+	0":;
+		~P := UNCONNECTED;~;
+		SET C(^C_CamUnconnectedState) = P;
+        ~P := CONNECT_OK;~;
+		SET C(^C_CamConnectOkState) = P;
+        ~P := CONNECT_FAIL;~;
+		SET C(^C_CamConnectFailState) = P;
+		---> S2
+\\\</state>
+\\\<state id="2" summary="Wait for video commands">
+S2,
+	#Z^ZP_StartVideoRec:;
+		~ IF ((box = 1) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX1', StartSavingEvent, 'StartEvent'); end; ~;
+		~ IF ((box = 2) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX2', StartSavingEvent, 'StartEvent'); end; ~;
+		~ IF ((box = 3) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX3', StartSavingEvent, 'StartEvent'); end; ~;
+		~ IF ((box = 4) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX4', StartSavingEvent, 'StartEvent'); end; ~;
+		---> SX
+	#Z^ZP_EndVideoRec:;
+		~ IF ((box = 1) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX1', StopSavingEvent, 'StopEvent'); end; ~;
+		~ IF ((box = 2) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX2', StopSavingEvent, 'StopEvent'); end; ~;
+		~ IF ((box = 3) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX3', StopSavingEvent, 'StopEvent'); end; ~;
+		~ IF ((box = 4) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX4', StopSavingEvent, 'StopEvent'); end; ~;
+		---> SX
+	#Z^ZP_TerminateExperiment:;
+		~ IF ((box = 1) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX1', StopSavingEvent, 'StopEvent'); end; ~;
+		~ IF ((box = 2) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX2', StopSavingEvent, 'StopEvent'); end; ~;
+		~ IF ((box = 3) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX3', StopSavingEvent, 'StopEvent'); end; ~;
+		~ IF ((box = 4) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX4', StopSavingEvent, 'StopEvent'); end; ~;
+
+		~ IF ((box = 1) and (P = CONNECT_OK)) then begin DisconnectVM('.', 'BOX1'); O := GetIfaceStatus();end;~;
+		~ IF ((box = 2) and (P = CONNECT_OK)) then begin DisconnectVM('.', 'BOX2'); O := GetIfaceStatus();end;~;
+		~ IF ((box = 3) and (P = CONNECT_OK)) then begin DisconnectVM('.', 'BOX3'); O := GetIfaceStatus();end;~;
+		~ IF ((box = 4) and (P = CONNECT_OK)) then begin DisconnectVM('.', 'BOX4'); O := GetIfaceStatus();end;~;
+		---> S32
+	0.1":;
+		~ IF ((box = 1) and (P <> CONNECT_OK)) then begin ConnectToVMEx(MG, BOX, '.', 'BOX1'); P := GetIfaceStatus();end;~;
+		~ IF ((box = 2) and (P <> CONNECT_OK)) then begin ConnectToVMEx(MG, BOX, '.', 'BOX2'); P := GetIfaceStatus();end;~;
+		~ IF ((box = 3) and (P <> CONNECT_OK)) then begin ConnectToVMEx(MG, BOX, '.', 'BOX3'); P := GetIfaceStatus();end;~;
+		~ IF ((box = 4) and (P <> CONNECT_OK)) then begin ConnectToVMEx(MG, BOX, '.', 'BOX4'); P := GetIfaceStatus();end;~;
+		IF (P = C(^C_CamUnconnectedState)) [@UNCON, @OTHER]
+			 @UNCON: SHOW 14, Video Unconnected,0 ---> SX
+             @OTHER: IF (P = C(^C_CamConnectOkState)) [@CONNECTED, @OTHER2]
+                @CONNECTED: SHOW 14, Video OK,0 ---> SX
+                @OTHER2: IF (P = C(^C_CamConnectFailState)) [@FAIL, @OTHER3]
+                   @FAIL:   SHOW 14, Video Failed,0 ---> SX
+                   @OTHER3: SHOW 14, Video Unknown,0  ---> SX
+\\\</state>
+\\\</stateset>
 
 \\\</program>

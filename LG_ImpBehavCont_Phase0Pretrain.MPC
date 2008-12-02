@@ -318,6 +318,7 @@ S1,
 			@have pellets to give:;
 				ON ^Out_PelletDispenser;
 				SUB S;
+				SHOW 40, Pellets remaining, S;
 				---> S2
 			@give no pellets:;
 				Z^ZP_PelletsGiven;
@@ -336,6 +337,7 @@ S3,
 			@still pellets to drop:;
 				SUB S;
 				ON ^Out_PelletDispenser;
+				SHOW 40, Pellets remaining, S;
 				---> S2
 			@sufficient pellets:;
 				Z^ZP_PelletsGiven;

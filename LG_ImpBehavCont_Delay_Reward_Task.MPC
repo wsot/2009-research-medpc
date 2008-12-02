@@ -360,7 +360,7 @@ S2,
 
 		Z^ZP_HouseLightsOn;
 		ON ^Out_TrayLight;
-		SET V = C(^C_HeadEntryTime); \\set max time for next step (10 sec = 10000msec)
+		SET V = C(^C_HeadEntryTime) * 1000; \\set max time for next step (10 sec = 10000msec)
 		Z^ZP_TimerStart;
 
 		\\calculate which is the active lever
@@ -399,7 +399,7 @@ S3,
 		SET B(Q + ^B_HeadEntryDelay) = T - B(Q + ^B_TrialMsec); \calculate MSEC between trial start and lever press
 		OFF ^Out_TrayLight;
 		Z^ZP_ExtendLeverSingle;
-		SET V = C(^C_LeverPressTime); \\set max time for next step (10 sec = 10000msec)
+		SET V = C(^C_LeverPressTime) * 1000; \\set max time for next step (10 sec = 10000msec)
 		Z^ZP_TimerStart;
 		SHOW 42, Jump to state, 5;
 		---> S5
@@ -471,7 +471,7 @@ S6,
 \\\<state id="7" summary="Wait until all pellets are dispensed">
 S7,
   #Z^ZP_PelletsGiven:;
-		SET V = C(^C_LightAfterRewardTime); \\set max time for next step (10 sec = 10000msec)
+		SET V = C(^C_LightAfterRewardTime) * 1000; \\set max time for next step (10 sec = 10000msec)
 		Z^ZP_TimerStart;
 		---> S8
 \\\</state>
@@ -531,7 +531,7 @@ S10,
 
 		Z^ZP_HouseLightsOn;
 		ON ^Out_TrayLight;
-		SET V = C(^C_HeadEntryTime); \\set max time for next step (10 sec = 10000msec)
+		SET V = C(^C_HeadEntryTime) * 1000; \\set max time for next step (10 sec = 10000msec)
 		Z^ZP_TimerStart;
 		Z^ZP_TrialTimerStart;
 		---> S12
@@ -555,7 +555,7 @@ S12,
 		SET B(Q + ^B_HeadEntryDelay) = T - B(Q + ^B_TrialMsec); \calculate MSEC between trial start and head entry
 		OFF ^Out_TrayLight;
 		Z^ZP_ExtendLeverAll;
-		SET V = C(^C_LeverPressTime); \\set max time for next step (10 sec = 10000msec)
+		SET V = C(^C_LeverPressTime) * 1000; \\set max time for next step (10 sec = 10000msec)
 		Z^ZP_TimerStart;
 		SHOW 42, Jump to state, 13;
 		---> S13
@@ -638,7 +638,7 @@ S18,
 \\\<state id="19" summary="Wait until all pellets delivered then start timer">
 S19,
 	#Z^ZP_PelletsGiven:;
-		SET V = C(^C_LightAfterRewardTime); \\set max time for next step (10 sec = 10000msec)
+		SET V = C(^C_LightAfterRewardTime) * 1000; \\set max time for next step (10 sec = 10000msec)
 		Z^ZP_TimerStart;
 		---> S20
 \\\</state>

@@ -284,7 +284,7 @@ S6,
 \\\</state>
 \\\<state id="7" summary="Wait until all pellets given">
 S7,
-	#Z^ZP_PelletsGiven":;
+	#Z^ZP_PelletsGiven:;
 		SHOW 30, Jump to state, 8;
 		SET V = C(^C_InterTrialDelayMsec);
 		Z^ZP_TimerStart;

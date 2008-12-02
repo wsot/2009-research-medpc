@@ -380,7 +380,7 @@ S8,
 \\\</state>
 \\\<state id="9" summary="Wait until full number of reward pellets dispensed, then continue">
 S9,
-	#Z^ZP_PelletsGiven":;
+	#Z^ZP_PelletsGiven:;
 		Z^ZP_TimerStart;
 		SHOW 30, Jump to state, 10;
 		---> S10

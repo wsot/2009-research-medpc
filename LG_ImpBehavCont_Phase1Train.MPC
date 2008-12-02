@@ -419,7 +419,7 @@ S2,
 \\\</state>
 \\\<state id="3" summary="Drop pellets until full number of reward pellets reached">
 S3,
-	0.4":;
+	0.2":;
 		IF S > 0 [@still pellets to drop, @sufficient pellets]
 			@still pellets to drop:;
 				SUB S;

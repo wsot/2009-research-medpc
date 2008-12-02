@@ -283,6 +283,10 @@ S1,
 		SET C(^C_SmallRewardPellets) = ^Def_SmallRewardPellets;
 		SET C(^C_LargeRewardPellets) = ^Def_LargeRewardPellets;
 		SET C(^C_TrialsPerBlock) = ^Def_TrialsPerBlock;
+		SET C(^C_HeadEntryTime) = ^Def_HeadEntryTime;
+		SET C(^C_LeverPressTime) = ^Def_LeverPressTime;
+		SET C(^C_LightAfterRewardTime) = ^Def_LightAfterRewardTime;
+		SET C(^C_TotalTrialTime) = ^Def_TotalTrialTime;
 		SET A(^A_PrepTrialType) = 0;
 
 		---> S5

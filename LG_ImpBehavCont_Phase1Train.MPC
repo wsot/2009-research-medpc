@@ -26,14 +26,10 @@ Y2KCOMPLIANT \\\Force use of 4-digit year
 \\\<constant group="general" represents="parameter" name="Def_RewardPellets" summary="Default number of pellets for a reward"></constant>
 ^Def_RewardPellets = 2
 
-\\\<constant group="general" represents="parameter" name="Def_HeadEntryTime" summary="Default time to allow for initial head entry"></constant>
-^Def_HeadEntryTime = 10
-\\\<constant group="general" represents="parameter" name="Def_LeverPressTime" summary="Default time to allow for lever press"></constant>
-^Def_LeverPressTime = 10
 \\\<constant group="general" represents="parameter" name="Def_LightAfterRewardTime" summary="Default time to have lights remain on after reward is delivered"></constant>
 ^Def_LightAfterRewardTime = 10
-\\\<constant group="general" represents="parameter" name="Def_TotalTrialTime" summary="Default time for a single full trial"></constant>
-^Def_TotalTrialTime = 40
+\\\<constant group="general" represents="parameter" name="Def_InterTrialDelay" summary="Delay between tray light turning off and new trial starting"></constant>
+^Def_InterTrialDelay = 10
 
 \\\<constant group="general" represents="parameter" name="Lever_LeftLever" summary="Value used to represent left lever"></constant>
 ^Lever_LeftLever = 0
@@ -50,7 +46,7 @@ Y2KCOMPLIANT \\\Force use of 4-digit year
 ^Lights_UseHouseFront = 0
 
 \\\<array name="C" outputName="Configuration" summary="Operational variables - should not change over the duration of the task once set">
-DIM C = 8
+DIM C = 6
 \\\<column name="C_MaxTrials" outputName="Max Trials" summary="Maximum time before automatic termination (minutes)"></column>
 ^C_MaxTrials = 0
 \\\<column name="C_RewardPellets" outputName="Reward Pellets" summary="Number off pellets permitted for small reward"></column>
@@ -61,14 +57,10 @@ DIM C = 8
 ^C_CamConnectOkState = 3
 \\\<column name="C_CamConnectFailState" summary="Used to store 'Fail' StateID of camera"></column>
 ^C_CamConnectFailState = 4
-\\\<column name="C_HeadEntryTime" outputName="Head entry time allowance" summary="Time allowed for initial head entry (s)"></column>
-^C_HeadEntryTime = 5
-\\\<column name="C_LeverPressTime" outputName="Lever press time" summary="Time allowed for lever press (s)"></column>
-^C_LeverPressTime = 6
 \\\<column name="C_LightAfterRewardTime" outputName="Light after reward time" summary="Duration that tray light remains on after reward (s)"></column>
-^C_LightAfterRewardTime = 7
-\\\<column name="C_TotalTrialTime" outputName="Total trial time" summary="Duration of a single full trial (s)"></column>
-^C_TotalTrialTime = 8
+^C_LightAfterRewardTime = 5
+\\\<column name="C_InterTrialDelay" outputName="Inter trial delay" summary="Delay between tray light turning off after reward, and new trial starting (s)"></column>
+^C_InterTrialDelay = 6
 \\\</array>
 
 \\\Control Variables 
@@ -77,14 +69,10 @@ DIM C = 8
 Var_Alias Maximum Trials							= C(0)
 \\\<variable alias="Reward Pellets Count" name="C(^C_RewardPellets)" summary="How many pellets are given for reward"></variable>
 Var_Alias Reward Pellet Count							= C(1)
-\\\<variable alias="Initial Head Entry Time Allowance" name="C(^C_HeadEntryTime)" summary="How long at the start of a trial is allowed for head entry to move to next step"></variable>
-Var_Alias Head entry time allowance (sec)							= C(5)
-\\\<variable alias="Lever press time allowance" name="C(^C_LeverPressTime)" summary="How long an animal has to press a lever once extended"></variable>
-Var_Alias Lever press time allowance (sec)							= C(6)
 \\\<variable alias="Light after reward time" name="C(^C_LightAfterRewardTime)" summary="How long the tray light remains on after a reward"></variable>
-Var_Alias Light duration after reward (sec)							= C(7)
-\\\<variable alias="Total trial time" name="C(^C_TotalTrialTime)" summary="The full duration of a single trial"></variable>
-Var_Alias Total trial time (sec)							= C(8)
+Var_Alias Light duration after reward (sec)							= C(5)
+\\\<variable alias="Inter-trial delay" name="C(^C_InterTrialDelay)" summary="Delay between tray light turning off after reward, and new trial starting"></variable>
+Var_Alias Inter-trial delay (sec)							= C(6)
 
 
 \\\Example comment line <!--<constant represents="input|output|other" name="LeverTrigger" summary="Input ID of the fixed lever 'starting' trigger"></constant>-->
@@ -160,20 +148,15 @@ Var_Alias Total trial time (sec)							= C(8)
 \\\<constant group="z-pulse" represents="parameter" name="ZP_RetractLeverAll" summary="Retract all levers"></constant>
 ^ZP_RetractLeverAll = 9
 
-\\\<constant group="z-pulse" represents="parameter" name="ZP_NewTrial" summary="Trigged when a single trial duration is reached"></constant>
-^ZP_NewTrial = 10
-\\\<constant group="z-pulse" represents="parameter" name="ZP_NewTrialStarted" summary="Trigged when a new trial is started - exists to prevent in-trial time overrunning trial duration"></constant>
-^ZP_NewTrialStarted = 11
-
 \\\<constant group="z-pulse" represents="parameter" name="ZP_TimerStart" summary="Used to start a 'timer' which will trigger a ZP_TimerReached when time passed - set V with delay milliseconds"></constant>
-^ZP_TimerStart = 12
+^ZP_TimerStart = 10
 \\\<constant group="z-pulse" represents="parameter" name="ZP_TimerReached" summary="Triggered when the timer is triggered, and then reached"></constant>
-^ZP_TimerReached = 13
+^ZP_TimerReached = 11
 
 \\\<constant group="z-pulse" represents="parameter" name="ZP_StartVideoRec" summary="Start video recording"></constant>
-^ZP_StartVideoRec = 14
+^ZP_StartVideoRec = 12
 \\\<constant group="z-pulse" represents="parameter" name="ZP_EndVideoRec" summary="End video recording"></constant>
-^ZP_EndVideoRec = 15
+^ZP_EndVideoRec = 13
 
 \\\ARRAYS
 \\\<array name="A" outputName="Trials overview" summary="Trial summary data">
@@ -210,12 +193,12 @@ DIM B = 80000 \ we wish it could be (^Gen_MaxTrials * B_TrialIndexMultiplier) - 
 ^B_TrialTimeMillisecond = 5
 \\\<column name="B_TrialMsec" outputName="Msec from start" summary="Time post-commencement (msec) this trial occurred TOTAL - Not related to H:M:S"></column>
 ^B_TrialMsec = 6
-\\\<column name="B_CentrePressDelay" outputName="First-press delay" summary="Time (in msec) after start of this trial the centre lever was pressed; -1 if not pressed"></column>
-^B_CentrePressDelay = 7
+\\\<column name="B_HeadEntryDelay" outputName="Head entry delay" summary="Time (in msec) after start of this trial the animal put its head in the head entry; -1 if didn't occur"></column>
+^B_HeadEntryDelay = 7
 \\\<column name="B_SecondPressDelay" outputName="Second-press delay" summary="Time (in msec) after start of this trial the retractable lever was pressed; -1 if not pressed"></column>
 ^B_SecondPressDelay = 8
-\\\<column name="B_FalseCentreHits" outputName="Irrelevant presses" summary="Number of times the centre lever was pressed after the retractable lever was extended"></column>
-^B_FalseCentreHits = 9
+\\\<column name="B_FalseHeadEntries" outputName="Irrelevent head entries" summary="Number of times the animal put its head in the head entry after the retractable lever was extended"></column>
+^B_FalseHeadEntries = 9
 \\\<column name="B_ExtendedLever" outputName="Extended lever" summary="Which lever was (or would have been) extended (0=Left  1=Right  2=Centre)"></column>
 ^B_ExtendedLever = 10
 \\\</array>
@@ -231,12 +214,10 @@ LIST D = 0,1
 \\\<!--<variable name="" summary=""></variable>-->
 \\\<variable name="P" summary="Storage variable for camera state"></variable>
 \\\<variable name="Q" summary="Current offset for B array"></variable>
-\\\<variable name="R" summary="Inter-trial pause (generated)"></variable>
-\\\<variable name="S" summary="Number of sips remaining before sipper retract - set before using ZP_ExtendSipper"></variable>
+\\\<variable name="S" summary="Number of pellets to give - set before using ZP_GivePellets"></variable>
 \\\<variable name="T" summary="Timer - # of msec since commencement"></variable>
 \\\<variable name="U" summary="Timer - variable swapping 1"></variable>
 \\\<variable name="W" summary="Timer - variable swapping 2"></variable>
-\\\<variable name="X" summary="Time remaining in current trial (sec)"></variable>
 \\\<variable name="Y" summary="Time remaining in countdouwn timer (msec)"></variable>
 \\\<variable name="V" summary="Duration timer - Time to be delayed before ZP_TimerReached in milliseconds"></variable>
 
@@ -247,10 +228,8 @@ S1,
 	0":;
 		SET C(^C_MaxTrials) = ^Def_MaxTrials;
 		SET C(^C_RewardPellets) = ^Def_RewardPellets;
-		SET C(^C_HeadEntryTime) = ^Def_HeadEntryTime;
-		SET C(^C_LeverPressTime) = ^Def_LeverPressTime;
 		SET C(^C_LightAfterRewardTime) = ^Def_LightAfterRewardTime;
-		SET C(^C_TotalTrialTime) = ^Def_TotalTrialTime;
+		SET C(^C_InterTrialDelay) = ^Def_InterTrialDelay;
 		---> S5
 \\\</state>
 \\\<state id="5" summary="Pause until start command is issued; Update displayed variables.">
@@ -269,6 +248,8 @@ S5,
 \\\<state id="10" summary="Wait for program termination">
 S10,
 	#Z^ZP_TerminateExperiment:;
+		Z^ZP_HouseLightsOff;
+		OFF ^Out_TrayLight;
 		SHOW 5, Finished, 2;
 		SET B(Q + ^B_TrialIndexMultiplier + ^B_TrialNumber) = -987.987;
 		---> S20
@@ -293,7 +274,6 @@ S1,
 \\\<state id="3" summary="Reset stimulus lights, select retract lever for use">
 S3,
 	0":;
-		Z^ZP_NewTrialStarted;
 		RANDD A(^A_CurrentLever) = D;
 
 		SET Q = A(^A_CompletedTrials) * ^B_TrialIndexMultiplier;
@@ -303,41 +283,32 @@ S3,
 		SET B(Q + ^B_ExtendedLever) = A(^A_CurrentLever);
 
 		\\initialise vars to 'not done' value of -1
-		SET B(Q + ^B_CentrePressDelay) = -1;
+		SET B(Q + ^B_HeadEntryDelay) = -1;
 		SET B(Q + ^B_SecondPressDelay) = -1;
 
 		Z^ZP_HouseLightsOn;
 		ON ^Out_TrayLight;
-		SET V = C(^C_HeadEntryTime) * 1000; \\set max time for next step (10 sec = 10000msec)
-		Z^ZP_TimerStart;
 		---> S4
 \\\</state>
-\\\<state id="4" summary="Wait up to configured duration for head entry press; off/reset if no press">
+\\\<state id="4" summary="Wait for head entry press; off/reset if no press">
 S4,
 	#Z^ZP_ExperimentEnd:;
-		Z^ZP_HouseLightsOff;
-		OFF ^Out_TrayLight;
 		Z^ZP_TerminateExperiment;
 		---> S32
 
-	#Z^ZP_TimerReached:;
-		\\no press; update records turn off all lights and jump to pause state
-		SET B(Q + ^B_CentrePressDelay) = -1;
-		Z^ZP_HouseLightsOff;
-		OFF ^Out_TrayLight;
-		---> S30
-
 	#R^Inp_HeadEntry:;
-		SET B(Q + ^B_CentrePressDelay) = T - B(Q + ^B_TrialMsec); \calculate MSEC between trial start and lever press
+		SET B(Q + ^B_HeadEntryDelay) = T - B(Q + ^B_TrialMsec); \calculate MSEC between trial start and lever press
 		OFF ^Out_TrayLight;
 		Z^ZP_ExtendLeverSingle;
-		SET V = C(^C_LeverPressTime) * 1000; \\set max time for next step (10 sec = 10000msec)
-		Z^ZP_TimerStart;
 		---> S7
 
 \\\</state>
-\\\<state id="7" summary="Wait for configured duration, or correct lever press">
+\\\<state id="7" summary="Wait for correct lever press">
 S7,
+  #Z^ZP_ExperimentEnd:;
+	Z^ZP_TerminateExperiment;
+	---> S32
+
   #R^Inp_LeverInputLeft:;
 	SHOW 7, Left Lever Pressed, T;
 	IF A(^A_CurrentLever) = ^Lever_LeftLever [@hit active lever]
@@ -349,13 +320,10 @@ S7,
 		@hit active lever:;
 			---> S8
 
-  #Z^ZP_TimerReached:;
-	SET B(Q + ^B_SecondPressDelay) = -1; \\record failure to press
-	Z^ZP_HouseLightsOff;
-	OFF ^Out_TrayLight;
-	Z^ZP_RetractLeverAll;
-	\\no press; update records turn off all lights and jump to pause state
-	---> S30
+  #R^Inp_HeadEntry:;
+	SHOW 7, Head entry occurred, T;
+	ADD B(Q + ^B_FalseHeadEntries); \add 1 to number of 'incorrect' centre hits
+	---> SX
 
 \\\</state>
 \\\<state id="8" summary="Record press; Trigger reward given; turn on tray light; retract all levers">
@@ -390,8 +358,6 @@ S10,
 \\\<state id="30" summary="Check if full number of trials have been completed, and if so issue terminate command.">
 S30,
 	#Z^ZP_ExperimentEnd:;
-		Z^ZP_HouseLightsOff;
-		OFF ^Out_TrayLight;
 		Z^ZP_TerminateExperiment;
 		---> S32
 
@@ -404,11 +370,17 @@ S30,
 				Z^ZP_TerminateExperiment;
 				---> S32
 			@count not reached:;
+				SET V = C(^C_InterTrialDelay) * 1000; \\set max time for next step (10 sec = 10000msec)
+				Z^ZP_TimerStart;
 				---> S31
 \\\</state>
 \\\<state id="31" summary="Wait for trial duration to be reached, then restart">
 S31,
-	#Z^ZP_NewTrial:;
+	#Z^ZP_ExperimentEnd:;
+		Z^ZP_TerminateExperiment;
+		---> S32
+
+	#Z^ZP_TimerReached:;
 		---> S3
 \\\</state>
 \\\</stateset>
@@ -572,34 +544,6 @@ S3,
 	0.01":;
 		Z^ZP_ExperimentEnd;
 		---> SX
-\\\</state>
-\\\</stateset>
-
-
-\\\<stateset id="10" summary="Trial timer - trigger a ZP_NewTrial after the configured total trial duration">
-S.S.10,
-\\\<state id="1" summary="Wait for start trigger">
-S1,
-	#START:;
-		SET X = C(^C_TotalTrialTime);
-		---> S2
-\\\<state id="2" summary="Every cycle, check if max duration of experiment reached; if trial time over, trigger a new trial - clock not reset until a 'new trial started' issues to indicate a new trial has actually started. This prevents trials getting progressively shorter and shorter if the internal delays are too long">
-\\\</state>
-S2,
-	1":;
-		SUB X;
-		SHOW 4, Trial Time rem. (s), X;
-		IF X <= 0 [@trial time complete]
-			@trial time complete:;
-				Z^ZP_NewTrial;
-				---> SX
-	#Z^ZP_NewTrialStarted:;
-		SET X = C(^C_TotalTrialTime);
-		---> SX
-	#Z^ZP_TerminateExperiment:;
-		---> S32
-\\\<state id="3" summary="Every cycle, check if max duration of experiment reached">
-\\\</state>
 \\\</state>
 \\\</stateset>
 

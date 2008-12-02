@@ -210,12 +210,12 @@ DIM B = 80000 \ we wish it could be (^Gen_MaxTrials * B_TrialIndexMultiplier) - 
 ^B_TrialTimeMillisecond = 5
 \\\<column name="B_TrialMsec" outputName="Msec from start" summary="Time post-commencement (msec) this trial occurred TOTAL - Not related to H:M:S"></column>
 ^B_TrialMsec = 6
-\\\<column name="B_CentrePressDelay" outputName="First-press delay" summary="Time (in msec) after start of this trial the centre lever was pressed; -1 if not pressed"></column>
-^B_CentrePressDelay = 7
+\\\<column name="B_HeadEntryDelay" outputName="Head entry delay" summary="Time (in msec) after start of this trial the animal put its head in the head entry; -1 if didn't occur"></column>
+^B_HeadEntryDelay = 7
 \\\<column name="B_SecondPressDelay" outputName="Second-press delay" summary="Time (in msec) after start of this trial the retractable lever was pressed; -1 if not pressed"></column>
 ^B_SecondPressDelay = 8
-\\\<column name="B_FalseCentreHits" outputName="Irrelevant presses" summary="Number of times the centre lever was pressed after the retractable lever was extended"></column>
-^B_FalseCentreHits = 9
+\\\<column name="B_FalseHeadEntries" outputName="Irrelevent head entries" summary="Number of times the animal put its head in the head entry after the retractable lever was extended"></column>
+^B_FalseHeadEntries = 9
 \\\<column name="B_ExtendedLever" outputName="Extended lever" summary="Which lever was (or would have been) extended (0=Left  1=Right  2=Centre)"></column>
 ^B_ExtendedLever = 10
 \\\</array>
@@ -231,8 +231,7 @@ LIST D = 0,1
 \\\<!--<variable name="" summary=""></variable>-->
 \\\<variable name="P" summary="Storage variable for camera state"></variable>
 \\\<variable name="Q" summary="Current offset for B array"></variable>
-\\\<variable name="R" summary="Inter-trial pause (generated)"></variable>
-\\\<variable name="S" summary="Number of sips remaining before sipper retract - set before using ZP_ExtendSipper"></variable>
+\\\<variable name="S" summary="Number of pellets to give - set before using ZP_GivePellets"></variable>
 \\\<variable name="T" summary="Timer - # of msec since commencement"></variable>
 \\\<variable name="U" summary="Timer - variable swapping 1"></variable>
 \\\<variable name="W" summary="Timer - variable swapping 2"></variable>
@@ -303,7 +302,7 @@ S3,
 		SET B(Q + ^B_ExtendedLever) = A(^A_CurrentLever);
 
 		\\initialise vars to 'not done' value of -1
-		SET B(Q + ^B_CentrePressDelay) = -1;
+		SET B(Q + ^B_HeadEntryDelay) = -1;
 		SET B(Q + ^B_SecondPressDelay) = -1;
 
 		Z^ZP_HouseLightsOn;
@@ -322,13 +321,13 @@ S4,
 
 	#Z^ZP_TimerReached:;
 		\\no press; update records turn off all lights and jump to pause state
-		SET B(Q + ^B_CentrePressDelay) = -1;
+		SET B(Q + ^B_HeadEntryDelay) = -1;
 		Z^ZP_HouseLightsOff;
 		OFF ^Out_TrayLight;
 		---> S30
 
 	#R^Inp_HeadEntry:;
-		SET B(Q + ^B_CentrePressDelay) = T - B(Q + ^B_TrialMsec); \calculate MSEC between trial start and lever press
+		SET B(Q + ^B_HeadEntryDelay) = T - B(Q + ^B_TrialMsec); \calculate MSEC between trial start and lever press
 		OFF ^Out_TrayLight;
 		Z^ZP_ExtendLeverSingle;
 		SET V = C(^C_LeverPressTime) * 1000; \\set max time for next step (10 sec = 10000msec)
@@ -348,6 +347,11 @@ S7,
 	IF A(^A_CurrentLever) = ^Lever_RightLever [@hit active lever]
 		@hit active lever:;
 			---> S8
+
+  #R^Inp_HeadEntry:;
+	SHOW 7, Head entry occurred, T;
+	ADD B(Q + ^B_FalseHeadEntries); \add 1 to number of 'incorrect' centre hits
+	---> SX
 
   #Z^ZP_TimerReached:;
 	SET B(Q + ^B_SecondPressDelay) = -1; \\record failure to press
@@ -598,8 +602,6 @@ S2,
 		---> SX
 	#Z^ZP_TerminateExperiment:;
 		---> S32
-\\\<state id="3" summary="Every cycle, check if max duration of experiment reached">
-\\\</state>
 \\\</state>
 \\\</stateset>
 

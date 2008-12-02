@@ -31,6 +31,9 @@ Y2KCOMPLIANT \\\Force use of 4-digit year
 \\\<constant group="general" represents="parameter" name="Def_InterTrialDelay" summary="Delay between tray light turning off and new trial starting"></constant>
 ^Def_InterTrialDelay = 10
 
+\\\<constant group="general" represents="parameter" name="Def_LightsOffBetweenTrials" summary="Whether house lights should be turned off between trials (No=0 Yes=1)"></constant>
+^Def_LightsOffBetweenTrials = 10
+
 \\\<constant group="general" represents="parameter" name="Lever_LeftLever" summary="Value used to represent left lever"></constant>
 ^Lever_LeftLever = 0
 \\\<constant group="general" represents="parameter" name="Lever_RightLever" summary="Value used to represent right lever"></constant>
@@ -46,7 +49,7 @@ Y2KCOMPLIANT \\\Force use of 4-digit year
 ^Lights_UseHouseFront = 0
 
 \\\<array name="C" outputName="Configuration" summary="Operational variables - should not change over the duration of the task once set">
-DIM C = 6
+DIM C = 7
 \\\<column name="C_MaxTrials" outputName="Max Trials" summary="Maximum time before automatic termination (minutes)"></column>
 ^C_MaxTrials = 0
 \\\<column name="C_RewardPellets" outputName="Reward Pellets" summary="Number off pellets permitted for small reward"></column>
@@ -61,6 +64,8 @@ DIM C = 6
 ^C_LightAfterRewardTime = 5
 \\\<column name="C_InterTrialDelay" outputName="Inter trial delay" summary="Delay between tray light turning off after reward, and new trial starting (s)"></column>
 ^C_InterTrialDelay = 6
+\\\<column name="C_LightsOffBetweenTrials" outputName="Lights off between trials" summary="Whether house lights should be turned off between trials (No=0 Yes=1)"></column>
+^C_LightsOffBetweenTrials = 7
 \\\</array>
 
 \\\Control Variables 
@@ -73,6 +78,8 @@ Var_Alias Reward Pellet Count							= C(1)
 Var_Alias Light duration after reward (sec)							= C(5)
 \\\<variable alias="Inter-trial delay" name="C(^C_InterTrialDelay)" summary="Delay between tray light turning off after reward, and new trial starting"></variable>
 Var_Alias Inter-trial delay (sec)							= C(6)
+\\\<variable alias="Lights off between trials (No=0 Yes=1)" name="C(^C_LightsOffBetweenTrials)" summary="Whether house lights should be turned off between trials (No=0 Yes=1)"></variable>
+Var_Alias Lights off between trials (No=0 Yes=1)							= C(7)
 
 
 \\\Example comment line <!--<constant represents="input|output|other" name="LeverTrigger" summary="Input ID of the fixed lever 'starting' trigger"></constant>-->
@@ -351,8 +358,12 @@ S9,
 S10,
   #Z^ZP_TimerReached:;
 		OFF ^Out_TrayLight;
-		Z^ZP_HouseLightsOff;
-		---> S30
+		IF C(^C_LightsOffBetweenTrials) = 1 [@lights off, @lights on]
+			@lights off:;
+				Z^ZP_HouseLightsOff;
+				---> S30
+			@lights on:;
+				---> S30
 	
 \\\</state>
 \\\<state id="30" summary="Check if full number of trials have been completed, and if so issue terminate command.">

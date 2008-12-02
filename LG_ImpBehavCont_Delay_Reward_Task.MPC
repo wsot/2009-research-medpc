@@ -861,7 +861,7 @@ S1,
 \\\<state id="2" summary="Wait for trial start trigger, then move into countdown">
 S2,
 	#Z^ZP_TrialTimerStart:;
-		SET X = 100;
+		SET X = C(^C_TotalTrialTime);
 		---> S3
 \\\</state>
 \\\<state id="2" summary="Every cycle, check if max duration of experiment reached">

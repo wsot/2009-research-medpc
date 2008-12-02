@@ -39,7 +39,7 @@ Y2KCOMPLIANT \\\Force use of 4-digit year
 \\\<constant group="general" represents="parameter" name="Def_LightAfterRewardTime" summary="Default time to have lights remain on after reward is delivered"></constant>
 ^Def_LightAfterRewardTime = 10
 \\\<constant group="general" represents="parameter" name="Def_TotalTrialTime" summary="Default time for a single full trial"></constant>
-^Def_TotalTrialTime = 40
+^Def_TotalTrialTime = 100
 
 \\\<constant group="general" represents="parameter" name="Lever_LeftLever" summary="Value used to represent left lever"></constant>
 ^Lever_LeftLever = 0

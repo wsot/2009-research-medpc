@@ -279,13 +279,11 @@ S6,
 		SET B(Q + ^B_RewardGiven) = 1;
 		SET S = C(^C_RewardPellets);
 		Z^ZP_GivePellets;
-		SHOW 30, Jump to state, 7;
 		---> S7
 \\\</state>
 \\\<state id="7" summary="Wait until all pellets given">
 S7,
 	#Z^ZP_PelletsGiven:;
-		SHOW 30, Jump to state, 8;
 		SET V = C(^C_InterTrialDelayMsec);
 		Z^ZP_TimerStart;
 		---> S8
@@ -293,7 +291,6 @@ S7,
 \\\<state id="8" summary="Delay for defined duration C(^C_InterTrialDelay)">
 S8,
 	#Z^ZP_TimerReached:;
-		SHOW 30, Jump to state, 31;
 		---> S31
 \\\</state>
 \\\<state id="31" summary="Update trail information, then reset.">
@@ -302,8 +299,6 @@ S31,
 		ADD A(^A_CompletedTrials);
 		SHOW 3, Completed Trials, A(^A_CompletedTrials);
 		SHOW 4, Rewarded Trials, A(^A_SuccessfulTrials);
-		SHOW 41 + (A(^A_SuccessfulTrials) * 2), Trial, A(^A_SuccessfulTrials);
-		SHOW 30, Jump to state, 3;
 		---> S3
 \\\</state>
 \\\</stateset>
@@ -318,7 +313,6 @@ S1,
 			@have pellets to give:;
 				ON ^Out_PelletDispenser;
 				SUB S;
-				SHOW 40, Pellets remaining, S;
 				---> S2
 			@give no pellets:;
 				Z^ZP_PelletsGiven;
@@ -337,7 +331,6 @@ S3,
 			@still pellets to drop:;
 				SUB S;
 				ON ^Out_PelletDispenser;
-				SHOW 40, Pellets remaining, S;
 				---> S2
 			@sufficient pellets:;
 				Z^ZP_PelletsGiven;

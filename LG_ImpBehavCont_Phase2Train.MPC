@@ -268,6 +268,8 @@ S5,
 \\\<state id="10" summary="Wait for program termination">
 S10,
 	#Z^ZP_TerminateExperiment:;
+		Z^ZP_HouseLightsOff;
+		OFF ^Out_TrayLight;
 		SHOW 5, Finished, 2;
 		SET B(Q + ^B_TrialIndexMultiplier + ^B_TrialNumber) = -987.987;
 		---> S20
@@ -350,7 +352,7 @@ S7,
 
   #R^Inp_HeadEntry:;
 	SHOW 7, Head entry occurred, T;
-	ADD B(Q + ^B_FalseHeadEntries); \add 1 to number of 'incorrect' centre hits
+	ADD B(Q + ^B_FalseHeadEntries); \add 1 to number of 'incorrect' head entries hits
 	---> SX
 
   #Z^ZP_TimerReached:;

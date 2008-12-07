@@ -440,7 +440,7 @@ S1,
 \\\</state>
 \\\<state id="2" summary="Wait for lever 1 press, then identify correct/incorrect levers and move to present tones">
 S2,
-	#R^Inp_LeverTrigger:;
+	#R^Inp_HeadEntry:;
 		SET Q = J(^J_CompletedTrials) * ^K_TrialIndexMultiplier;
 		SET K(Q + ^K_TrialIndexMultiplier) = -987.987; \set array end to be after the current trial
 		SET K(Q + ^K_TrialTimeHour) = J(^J_CurrentHours), K(Q + ^K_TrialTimeMinute) = J(^J_CurrentMinutes), K(Q + ^K_TrialTimeSecond) = J(^J_CurrentSeconds), K(Q + ^K_TrialTimeMillisecond) = J(^J_CurrentMilliseconds);

@@ -1212,6 +1212,11 @@ S5,
 \\\</state>
 \\\<state id="6" summary="Play sound">
 S6,
+\\	#Z^ZP_SetTDTFrequency:;
+	#Z14:;
+		OFF ^Out_TD252;
+		ON ^Out_TD249; \\reset the tone setup
+		---> S2
 	G(^G_SndBurstDurationSec)#T:;
 		OFF ^Out_TD252;
 		---> S1

@@ -33,7 +33,7 @@ DIM G = 20
 ^G_MaxTrials = 0
 \\\<column name="G_ShocksOn" outputName="Shocks on" summary="Whether to deliver shocks"></column>
 ^G_ShocksOn = 1
-\\\<column name="G_TrialsType" outputName="Trials type" summary="Type of trials to present (0=acoustic, 1=electrical)"></column>
+\\\<column name="G_TrialsType" outputName="Trials type" summary="Type of trials to present (0=acoustic, 1=electrical, 2=random)"></column>
 ^G_TrialsType = 2
 \\\<column name="G_ShockDurationMsec" outputName="Shock duration" summary="Duration (in ms) of foot-shock entered at configuration time -&gt; then copied to ^G_ShockDurationSec for actual use"></column>
 ^G_ShockDurationMsec = 3

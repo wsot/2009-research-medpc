@@ -847,14 +847,13 @@ S1,
 \\\</state>
 \\\<state id="2" summary="Turn off reset signal">
 S2,
-	0.01":;
+	0.05":;
 		OFF ^Out_TD249;
 		---> S3
 \\\</state>
 \\\<state id="3" summary="Increment frequency set by one">
 S3,
-	0.01":;
-		SUB Y;
+	0.05":;
 		IF Y > 0 [@increment freq, @done inc freq]
 			@increment freq:;
 				ON ^Out_TD250;
@@ -864,18 +863,23 @@ S3,
 \\\</state>
 \\\<state id="4" summary="Turn off increment trigger">
 S4,
-	0.01":;
+	0.05":;
 		OFF ^Out_TD250;
+		SUB Y;
 		---> S3
 \\\</state>
 \\\<state id="5" summary="Play sound">
 S5,
-	0":;
+	0.05":;
 		ON ^Out_TD252;
 		---> S6
 \\\</state>
 \\\<state id="6" summary="Play sound">
 S6,
+	#Z^ZP_SetTDTFrequency:;
+		OFF ^Out_TD252;
+		ON ^Out_TD249; \\reset the tone setup
+		---> S2
 	G(^G_SndBurstDurationSec)#T:;
 		OFF ^Out_TD252;
 		---> S1

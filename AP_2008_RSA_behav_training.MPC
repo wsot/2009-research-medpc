@@ -149,14 +149,14 @@ Var_Alias Correct trials before dual-lever trial	= G(9)
 ^Out_HouseLightRear = 9
 \\\<output name="Out_HouseLightMid" summary="Output ID of miidle house light."><use>OFF->unlit, ON->lit</use></output>
 ^Out_HouseLightMid = 10
-\\\<output name="Out_HouseLightFront" summary="Output ID of front-most house light."><use>OFF->unlit, ON->lit</use></output>
-^Out_HouseLightFront = 11
-\\\<output name="Out_LedRed" summary="Output ID of Red LED (rearmost)."><use>OFF->unlit, ON->lit</use></output>
-^Out_LedRed = 12
-\\\<output name="Out_LedGreen" summary="Output ID of Green LED (frontmost)."><use>OFF->unlit, ON->lit</use></output>
-^Out_LedGreen = 13
-\\\<output name="Out_LedYellow" summary="Output ID of Yellow LED (middle)."><use>OFF->unlit, ON->lit</use></output>
-^Out_LedYellow = 14
+\\\<output name="Out_TrayLight" summary="Output ID of light for the feeder tray."><use>OFF->unlit, ON->lit</use></output>
+^Out_TrayLight = 14
+\\\<output name="Out_TD249" summary="Output ID '249' indicator for Tucker Davis equipment."><use>OFF->Not value 249 on TDT, ON->249 on TDT</use></output>
+^Out_TD249 = 8
+\\\<output name="Out_TD249" summary="Output ID '249' indicator for Tucker Davis equipment."><use>OFF->Not value 249 on TDT, ON->249 on TDT</use></output>
+^Out_TD252 = 15
+\\\<output name="Out_TD249" summary="Output ID '249' indicator for Tucker Davis equipment."><use>OFF->Not value 249 on TDT, ON->249 on TDT</use></output>
+^Out_TD250 = 16
 
 \\\<constant group="audio" represents="delta" name="Snd_SPIncrement (not in use)" summary="Size of increment in sound pressure (in dB)"></constant>
 ^Snd_SPIncrement = 10
@@ -474,8 +474,8 @@ S2,
 				SET X = 0, Y = 0;
 				---> S3
 			@Array Incomplete:;
-				SET D(W) = Z(Y);
-				SET E(W) = Z(X);
+				SET D(W) = Y;
+				SET E(W) = X;
 				ADD W;
 				IF X >= (^FrequencyCount - 1) [@Finished pass,@Unfinished pass]
 					@Finished pass:;
@@ -496,8 +496,8 @@ S3,
 				SET E(W) = -987.987;
 				---> S9
 			@Array Incomplete:;
-				SET D(W) = Z(Y);
-				SET E(W) = Z(Y);
+				SET D(W) = Y;
+				SET E(W) = Y;
 				ADD W;
 				IF X >= (^FrequencyCount - 3) [@Finished pass,@Unfinished pass]
 					@Finished pass:;
@@ -566,14 +566,14 @@ S2,
 
 		RANDD T = F;
 		SET K(Q + ^K_TrialNumber) = J(^J_CompletedTrials) + 1;
-		SET K(Q + ^K_Frequency1) = D(T);
-		SET K(Q + ^K_Frequency2) = E(T);
+		SET K(Q + ^K_Frequency1) = Z(D(T));
+		SET K(Q + ^K_Frequency2) = Z(E(T));
 		SET K(Q + ^K_SP1) = ^Snd_SP;
 		SET K(Q + ^K_SP2) = ^Snd_SP;
 
 		SHOW 21, Trial Number, J(^J_CompletedTrials) + 1;
-		SHOW 23, First Tone, D(T);
-		SHOW 24, Second Tone, E(T);
+		SHOW 23, First Tone, Z(D(T));
+		SHOW 24, Second Tone, Z(E(T));
 
 		IF D(T) = E(T) [@SameTonesPresented, @DifferentTonesPresented]
 			@SameTones - identify match lever:;
@@ -604,14 +604,14 @@ S2,
 \\\<state id="4" summary="Pause for pre-delay then play first sound">
 S4,
 	G(^G_PreToneDelaySec)#T:;
-		SET V = D(T);
+		SET V = Z(D(T));
 		~OnFreq(MG, BOX, V);~;
 		---> S5
 \\\</state>
 \\\<state id="5" summary="Pause for inter-tone delay then play second sound">
 S5,
 	G(^G_InterToneDelaySec)#T:;
-		SET V = E(T);
+		SET V = Z(E(T));
 		~OnFreq(MG, BOX, V);~;
 		---> S6
 \\\</state>
@@ -800,7 +800,7 @@ S26,
 \\		ADD J(^J_CompletedTrials);
 \\		RANDD G(^G_LeverExtensionStatus) = F;
 \\		SET G(^G_LeverExtensionStatus) = ((G/1024)*^FrequencyCount*^FrequencyCount);
-\\		SHOW 1, Index, G, 2, Freq1, D(G), 3, Freq2, E(G);
+\\		SHOW 1, Index, G, 2, Freq1, Z(D(G)), 3, Freq2, Z(E(G));
 \\		---> SX
 
 \\\<stateset id="3" summary="Operate the post-tone pre-press timer">

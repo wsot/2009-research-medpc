@@ -614,8 +614,8 @@ S2,
 \\\<state id="4" summary="Pause for pre-delay then play first sound">
 S4,
 	G(^G_PreToneDelaySec)#T:;
-		\\Z^ZP_PlayTDTTone:;
-		Z15:;
+		\\Z^ZP_PlayTDTTone;
+		Z15;
 		SET V = Z(D(T));
 		~OnFreq(MG, BOX, V);~;
 		---> S5
@@ -630,8 +630,8 @@ S5,
 \\\<state id="6" summary="Pause for inter-tone delay then play second sound">
 S6,
 	G(^G_InterToneDelaySec)#T:;
-		\\Z^ZP_PlayTDTTone:;
-		Z15:;
+		\\Z^ZP_PlayTDTTone;
+		Z15;
 		SET V = Z(E(T));
 		~OnFreq(MG, BOX, V);~;
 		---> S7

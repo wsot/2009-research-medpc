@@ -213,6 +213,12 @@ Var_Alias Correct trials before dual-lever trial	= G(9)
 \\\<constant group="z-pulse" represents="parameter" name="ZP_ExperimentEnd" summary="Trigged to end the experiment"></constant>
 ^ZP_ExperimentEnd = 13
 
+\\\<constant group="z-pulse" represents="parameter" name="ZP_SetTDTFrequency" summary="Trigger the setting of the frequency in TDT based on index"></constant>
+\\^ZP_SetTDTFrequency = 14
+\\\<constant group="z-pulse" represents="parameter" name="ZP_PlayTDTTone" summary="Trigger playing of the tone in the TDT system"></constant>
+\\^ZP_PlayTDTTone = 15
+
+
 
 
 \\\ARRAYS
@@ -474,8 +480,8 @@ S2,
 				SET X = 0, Y = 0;
 				---> S3
 			@Array Incomplete:;
-				SET D(W) = Z(Y);
-				SET E(W) = Z(X);
+				SET D(W) = Y;
+				SET E(W) = X;
 				ADD W;
 				IF X >= (^FrequencyCount - 1) [@Finished pass,@Unfinished pass]
 					@Finished pass:;
@@ -496,8 +502,8 @@ S3,
 				SET E(W) = -987.987;
 				---> S9
 			@Array Incomplete:;
-				SET D(W) = Z(Y);
-				SET E(W) = Z(Y);
+				SET D(W) = Y;
+				SET E(W) = Y;
 				ADD W;
 				IF X >= (^FrequencyCount - 3) [@Finished pass,@Unfinished pass]
 					@Finished pass:;
@@ -516,7 +522,7 @@ S9,
 		SHOW 5, Running, 0;
 		Z^ZP_StartVideoRec;
 		ON ^Out_HouseLightRear;
-		SET G(^G_InterToneDelaySec) = ((^Snd_ToneBurstDuration / 1000) + (G(^G_InterToneDelay) / 1000)) * 1";
+		SET G(^G_InterToneDelaySec) = (G(^G_InterToneDelay) / 1000) * 1";
 		SET G(^G_PreToneDelaySec) = (G(^G_PreToneDelay) / 1000) * 1";
 		SET G(^G_AllowedResponseDelay) = (G(^G_AllowedResponseDelaySec)) * 1";
 		SET G(^G_MaxDurationMsec) = G(^G_MaxDuration) * 60000; \convert minutes to milliseconds
@@ -566,14 +572,18 @@ S2,
 
 		RANDD T = F;
 		SET K(Q + ^K_TrialNumber) = J(^J_CompletedTrials) + 1;
-		SET K(Q + ^K_Frequency1) = D(T);
-		SET K(Q + ^K_Frequency2) = E(T);
+		SET K(Q + ^K_Frequency1) = Z(D(T));
+		SET K(Q + ^K_Frequency2) = Z(E(T));
 		SET K(Q + ^K_SP1) = ^Snd_SP;
 		SET K(Q + ^K_SP2) = ^Snd_SP;
 
 		SHOW 21, Trial Number, J(^J_CompletedTrials) + 1;
-		SHOW 23, First Tone, D(T);
-		SHOW 24, Second Tone, E(T);
+		SHOW 23, First Tone, Z(D(T));
+		SHOW 24, Second Tone, Z(E(T));
+
+		SET Y = D(T);
+		Z14;
+\\		Z^ZP_SetTDTFrequency;
 
 		IF D(T) = E(T) [@SameTonesPresented, @DifferentTonesPresented]
 			@SameTones - identify match lever:;
@@ -604,41 +614,52 @@ S2,
 \\\<state id="4" summary="Pause for pre-delay then play first sound">
 S4,
 	G(^G_PreToneDelaySec)#T:;
-		SET V = D(T);
+		\\Z^ZP_PlayTDTTone;
+		Z15;
+		SET V = Z(D(T));
 		~OnFreq(MG, BOX, V);~;
 		---> S5
 \\\</state>
-\\\<state id="5" summary="Pause for inter-tone delay then play second sound">
 S5,
-	G(^G_InterToneDelaySec)#T:;
-		SET V = E(T);
-		~OnFreq(MG, BOX, V);~;
-		---> S6
-\\\</state>
-\\\<state id="6" summary="Wait the duration of the tone, then start timer and commence test">
-S6,
 	G(^G_SndBurstDurationSec)#T:;
+		SET Y = E(T);
+		\\Z^ZP_SetTDTFrequency;
+		Z14;
+		---> S6
+
+\\\<state id="6" summary="Pause for inter-tone delay then play second sound">
+S6,
+	G(^G_InterToneDelaySec)#T:;
+		\\Z^ZP_PlayTDTTone;
+		Z15;
+		SET V = Z(E(T));
+		~OnFreq(MG, BOX, V);~;
 		---> S7
 \\\</state>
-\\\<state id="7" summary="Trigger extension of the retractable lever">
+\\\<state id="7" summary="Wait the duration of the tone, then start timer and commence test">
 S7,
+	G(^G_SndBurstDurationSec)#T:;
+		---> S8
+\\\</state>
+\\\<state id="8" summary="Trigger extension of the retractable lever">
+S8,
 	0":;
 		IF G(^G_CorrectTrialsBeforeDual) < 0 [@never extend both, @can extend both]
 		@never extend both:;
 				Z^ZP_ExtendCorrectLever;
-				---> S8
+				---> S9
 		@can extend both:;
 			IF (J(^J_CorrectMatchTrials) + J(^J_CorrectMismatchTrials)) >= G(^G_CorrectTrialsBeforeDual) [@More than single-lever limit completed,@Less than single-lever limit completed]
 				@Extend both levers:;
 					Z^ZP_ExtendBothLevers;
-					---> S8
+					---> S9
 				@Extend only correct lever:;
 					Z^ZP_ExtendCorrectLever;
-					---> S8
+					---> S9
 
 \\\</state>
-\\\<state id="8" summary="Delay for lever extension">
-S8,
+\\\<state id="9" summary="Delay for lever extension">
+S9,
 	^Lvr_RetractDelay#T:;
 		Z^ZP_StartTimer;
 		---> S10
@@ -800,7 +821,7 @@ S26,
 \\		ADD J(^J_CompletedTrials);
 \\		RANDD G(^G_LeverExtensionStatus) = F;
 \\		SET G(^G_LeverExtensionStatus) = ((G/1024)*^FrequencyCount*^FrequencyCount);
-\\		SHOW 1, Index, G, 2, Freq1, D(G), 3, Freq2, E(G);
+\\		SHOW 1, Index, G, 2, Freq1, Z(D(G)), 3, Freq2, Z(E(G));
 \\		---> SX
 
 \\\<stateset id="3" summary="Operate the post-tone pre-press timer">
@@ -1143,6 +1164,57 @@ S3,
 	0.01":;
 		Z^ZP_ExperimentEnd;
 		---> SX
+\\\</state>
+\\\</stateset>
+
+
+
+\\\<stateset id="26" summary="Handle sound production by TDT">
+S.S.26,
+\\\<state id="1" summary="Wait for signal to set TDT frequency">
+S1,
+	\\#Z^ZP_SetTDTFrequency:;
+	#Z14:;
+		ON ^Out_TD249; \\reset the tone setup
+		---> S2
+	\\#Z^ZP_PlayTDTTone:;
+	#Z15:;
+		---> S5
+\\\</state>
+\\\<state id="2" summary="Turn off reset signal">
+S2,
+	0.01":;
+		OFF ^Out_TD249;
+		---> S3
+\\\</state>
+\\\<state id="3" summary="Increment frequency set by one">
+S3,
+	0.01":;
+		SUB Y;
+		IF Y > 0 [@increment freq, @done inc freq]
+			@increment freq:;
+				ON ^Out_TD250;
+				---> S4
+			@done inc freq:;
+				---> S1
+\\\</state>
+\\\<state id="4" summary="Turn off increment trigger">
+S4,
+	0.01":;
+		OFF ^Out_TD250;
+		---> S3
+\\\</state>
+\\\<state id="5" summary="Play sound">
+S5,
+	0":;
+		ON ^Out_TD252;
+		---> S6
+\\\</state>
+\\\<state id="6" summary="Play sound">
+S6,
+	G(^G_SndBurstDurationSec)#T:;
+		OFF ^Out_TD252;
+		---> S1
 \\\</state>
 \\\</stateset>
 

@@ -113,9 +113,9 @@ Var_Alias Tone Duration (sec)				= G(6)
 \\\<variable alias="Intertone Duration" name="G(^G_InterToneTIntervalSec)" summary="Duration (in seconds) between tone stimulus"></variable>
 Var_Alias Intertone Duration (sec)				= G(7)
 \\\<variable alias="Minimum Inter-trial Interval (sec)" name="G(^G_MinITI)" summary="Minimum inter-trial interval (in sec)"></variable>
-Var_Alias Minimum Inter-trial Interval		= G(8)
+Var_Alias Minimum Inter-trial Interval		= G(9)
 \\\<variable alias="Maximum Inter-trial Interval (sec)" name="G(^G_MaxITI)" summary="Maximum inter-trial interval (in sec)"></variable>
-Var_Alias Maximum Inter-trial Interval		= G(9)
+Var_Alias Maximum Inter-trial Interval		= G(10)
 
 
 \\\Example comment line <!--<constant represents="input|output|other" name="LeverTrigger" summary="Input ID of the fixed lever 'starting' trigger"></constant>-->
@@ -337,6 +337,7 @@ S1,
 \\\		SET G(^G_MaxBlocks) = ^Def_MaxBlocks;
 		SET G(^G_ShockDurationMsec) = ^Shk_ShockDuration;
 		SET G(^G_ToneDurationSec) = (^Snd_ToneDuration / 1000);
+		SET G(^G_TrialDurationSec) = ^Def_TrialDuration;
 		SET G(^G_InterToneIntervalSec) = (^Snd_InterToneInterval / 1000);
 		SET G(^G_MinITI) = ^Def_MinITI;
 		SET G(^G_MaxITI) = ^Def_MaxITI;
@@ -476,6 +477,7 @@ S3,
 	IF G(^G_TrialsType) = ^G_TrialType_Acoustic [@acoustic trial, @not acoustic trial]
 		@acoustic trial:;
 			RANDD L = I; \select trial type for acoustic
+			SHOW 6, Trial Type, L;
 			SET K(Q + ^K_TrialType) = L;
 			IF L = ^TrialType_AcousticMismatch [@shock trial, @nonshock trial]
 				@mismatch trial:;
@@ -484,6 +486,7 @@ S3,
 					---> S9
 		@not acoustic trial:;
 			RANDD L = M; \select trial type for electrical
+			SHOW 6, Trial Type, L;
 			SET K(Q + ^K_TrialType) = L;
 			IF L = ^TrialType_AcousticMismatch [@shock trial, @nonshock trial]
 				@mismatch trial:;
@@ -496,6 +499,7 @@ S3,
 S5,
   R#T:;
 	Z^ZP_StartStim;
+	SHOW 7, Stim On, L;
 \	~OnFreq(MG, BOX, V);~; \Removed for sound to be presented by TDT 
 	---> S6
 \\\</state>
@@ -524,6 +528,7 @@ S7,
 S9,
   R#T:;
 	Z^ZP_StartStim;
+	SHOW 7, Stim On, L;
 	---> S10
 \\\</state>
 \\\<state id="10" summary="Non-shock Trial - Continue stimulus when should would be occurring">
@@ -588,60 +593,62 @@ S.S.4,
 \\\<state id="1" summary="Wait for ZP_StartStim">
 S1,
 	#Z^ZP_StartStim:;
-		SET N = ^Def_TrialDuration / (^G_ToneDurationSec + ^G_InterToneIntervalSec);
+		SHOW 8, Tr Type B, L;
+		\\SET N = G(^G_TrialDurationSec) / (^G_ToneDurationSec + ^G_InterToneIntervalSec);
+		SET N = 20;
 		IF L = ^TrialType_AcousticMatchA [@ac match A, @not ac match A]
 			@ac match A:;
 				SUB N;
 				OFF ^Out_TDStimType;
 				ON ^Out_TDStim1;
-				SHOW 4, Delivering stimulus A, 0;
+				SHOW 7, Delivering stimulus A, 0;
 				---> S2
 			@not ac match A:;
 				IF L = ^TrialType_AcousticMatchB [@ac match B, @not ac match B]
 				@ac match B:;
 					OFF ^Out_TDStimType;
 					ON ^Out_TDStim2;
-					SHOW 4, Delivering stimulus B, 0;
+					SHOW 7, Delivering stimulus B, 0;
 					---> S4
 				@not ac match B:;
 				IF L = ^TrialType_AcousticMismatch [@ac mismatch, @not ac mismatch]
 					@ac mismatch:;
 					OFF ^Out_TDStimType;
 					ON ^Out_TDStim1;
-					SHOW 4, Delivering stimulus A, 0;
+					SHOW 7, Delivering stimulus A, 0;
 					---> S6
 					@not ac mismatch:;
 					IF L = ^TrialType_ElectricMatchA [@el match A, @not el match A]
 						@el match A:;
 						ON ^Out_TDStimType;
 						ON ^Out_TDStim1;
-						SHOW 4, Delivering stimulus A, 0;
+						SHOW 7, Delivering stimulus A, 0;
 						---> S2
 						@not el match A:;
 						IF L = ^TrialType_ElectricMatchB [@el match B, @not el match B]
 							@ac match B:;
 							ON ^Out_TDStimType;
 							ON ^Out_TDStim2;
-							SHOW 4, Delivering stimulus B, 0;
+							SHOW 7, Delivering stimulus B, 0;
 							---> S4
 							@not ac match B:;
 							IF L = ^TrialType_ElectricMismatchAB [@el mismatch AB, @el mismatch BA]
 								@el mismatch AB:;
 								ON ^Out_TDStimType;
 								ON ^Out_TDStim1;
-								SHOW 4, Delivering stimulus A, 0;
+								SHOW 7, Delivering stimulus A, 0;
 								---> S6
 								@el mismatch ba:;
 								ON ^Out_TDStimType;
 								ON ^Out_TDStim2;
-								SHOW 4, Delivering stimulus B, 0;
+								SHOW 7, Delivering stimulus B, 0;
 								---> S8
 \\\</state>
 \\\<state id="2,3" summary="Present match A">
 S2,
 	O#T:;
 		OFF ^Out_TDStim1;
-		SHOW 4, Stim off, 0;
+		SHOW 7, Stim off, 0;
 		IF N < 1 [@finished tones, @more tones]
 			@finished tones:;
 				---> S1
@@ -651,14 +658,14 @@ S3,
 	Y#T:;
 		SUB N;
 		ON ^Out_TDStim1;
-		SHOW 4, Delivering stimulus A, 0;
+		SHOW 7, Delivering stimulus A, 0;
 		---> S2
 \\\</state>
 \\\<state id="4,5" summary="Present match B">
 S4,
 	O#T:;
 		OFF ^Out_TDStim2;
-		SHOW 4, Stim off, 0;
+		SHOW 7, Stim off, 0;
 		IF N < 1 [@finished tones, @more tones]
 			@finished tones:;
 				---> S1
@@ -668,14 +675,14 @@ S5,
 	Y#T:;
 		SUB N;
 		ON ^Out_TDStim2;
-		SHOW 4, Delivering stimulus B, 0;
+		SHOW 7, Delivering stimulus B, 0;
 		---> S4
 \\\</state>
 \\\<state id="6,7,8,9 summary="Present mismatch">
 S6,
 	O#T:;
 		OFF ^Out_TDStim1;
-		SHOW 4, Stim off, 0;
+		SHOW 7, Stim off, 0;
 		IF N < 1 [@finished tones, @more tones]
 			@finished tones:;
 				---> S1
@@ -685,12 +692,12 @@ S7,
 	Y#T:;
 		SUB N;
 		ON ^Out_TDStim2;
-		SHOW 4, Delivering stimulus B, 0;
+		SHOW 7, Delivering stimulus B, 0;
 		---> S8
 S8,
 	O#T:;
 		OFF ^Out_TDStim2;
-		SHOW 4, Stim off, 0;
+		SHOW 7, Stim off, 0;
 		IF N < 1 [@finished tones, @more tones]
 			@finished tones:;
 				---> S1
@@ -700,7 +707,7 @@ S9,
 	Y#T:;
 		SUB N;
 		ON ^Out_TDStim1;
-		SHOW 4, Delivering stimulus A, 0;
+		SHOW 7, Delivering stimulus A, 0;
 		---> S6
 \\\</state>
 \\\</stateset>

@@ -158,12 +158,10 @@ Var_Alias Maximum Inter-trial Interval		= G(10)
 ^Out_HouseLightFront = 11
 \\\<output name="Out_LedRed" summary="Output ID of Red LED (rearmost)."><use>OFF->unlit, ON->lit</use></output>
 ^Out_LedRed = 12
-\\\<output name="Out_LedGreen" summary="Output ID of Green LED (frontmost)."><use>OFF->unlit, ON->lit</use></output>
-^Out_LedGreen = 13
-\\\<output name="Out_LedYellow" summary="Output ID of Yellow LED (middle)."><use>OFF->unlit, ON->lit</use></output>
-^Out_LedYellow = 14
-\\\<output name="Out_Fan" summary="Output ID of venting fan."><use>OFF->fan off, ON->fan on</use></output>
-^Out_Fan = 15
+\\\<output name="Out_TDTrial" summary="Output ID for trial running."><use>OFF->No trial running, ON->Trial running</use></output>
+^Out_TDTrial = 13
+\\\<output name="Out_TDBlock" summary="Output ID for block running."><use>OFF->No block running, ON->Block running</use></output>
+^Out_TDBlock = 14
 \\\<output name="Out_TDStim1" summary="Output ID to trigger presentation of stimulus 1."><use>OFF->No stim 1, ON->stim 1 playing</use></output>
 ^Out_TDStim1 = 8
 \\\<output name="Out_TDStim2" summary="Output ID to trigger presentation of stimulus 2."><use>OFF->No stim 2, ON->stim 2 playing</use></output>
@@ -456,7 +454,6 @@ S2,
 	SET K(Q + ^K_PreITI) = S;
 	SET K(Q + ^K_TrialIndexMultiplier) = -987.987;
 
-	SUB J(^J_RemainInBlock);
 	IF J(^J_RemainInBlock) < 1 [@completed block, @incomplete block]
 		@completed block:;
 			IF G(^G_TrialsType) = ^G_TrialType_Acoustic [@acoustic trial, @not acoustic trial]
@@ -498,6 +495,8 @@ S3,
 \\\<state id="5" summary="Shock trial - Commence tone after inter-trial delay">
 S5,
   R#T:;
+	ON ^Out_TDTrial;
+	ON ^Out_TDBlock;
 	Z^ZP_StartStim;
 	SHOW 7, Stim On, L;
 \	~OnFreq(MG, BOX, V);~; \Removed for sound to be presented by TDT 
@@ -521,12 +520,20 @@ S7,
   G(^G_ShockDuration)#T:;
 	OFF ^Out_ShockEmitter;
 	CLEAR 3,3;
-	---> S31
+	OFF ^Out_TDTrial;
+	IF J(^J_RemainInBlock) = 1 [@end block, @not end]
+		@end block:;
+			OFF ^Out_TDBlock;
+			---> S31
+		@not end:;
+			---> S31
 \\\</state>
 
 \\\<state id="9" summary="Non-shock trial - commence tone after inter-trial delay">
 S9,
   R#T:;
+	ON ^Out_TDTrial;
+	ON ^Out_TDBlock;
 	Z^ZP_StartStim;
 	SHOW 7, Stim On, L;
 	---> S10
@@ -539,7 +546,13 @@ S10,
 \\\<state id="11" summary="Non-shock Trial - Wait shock duration">
 S11,
   G(^G_ShockDuration)#T:;
-	---> S31
+	OFF ^Out_TDTrial;
+	IF J(^J_RemainInBlock) = 1 [@end block, @not end]
+		@end block:;
+			OFF ^Out_TDBlock;
+			---> S31
+		@not end:;
+			---> S31
 \\\</state>
 
 \\\<state id="31" summary="Check if full number of trials have been completed, and if so issue terminate command.">
@@ -550,6 +563,7 @@ S31,
 	0":;
 		CLEAR 16,16;
 		Z^ZP_TrialEnd;
+		SUB J(^J_RemainInBlock);
 		ADD J(^J_CompletedTrials);
 		SET J(^J_MeanITI) = ((S - J(^J_MeanITI)) / J(^J_CompletedTrials)) + J(^J_MeanITI);
 		SHOW 2, Completed Trials, J(^J_CompletedTrials);

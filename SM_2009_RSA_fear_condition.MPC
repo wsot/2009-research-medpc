@@ -158,16 +158,17 @@ Var_Alias Maximum Inter-trial Interval		= G(10)
 ^Out_HouseLightFront = 11
 \\\<output name="Out_LedRed" summary="Output ID of Red LED (rearmost)."><use>OFF->unlit, ON->lit</use></output>
 ^Out_LedRed = 12
-\\\<output name="Out_TDTrial" summary="Output ID for trial running."><use>OFF->No trial running, ON->Trial running</use></output>
+\\\<output name="Out_TDTrial" summary="Output ID for trial running. (ID 8)"><use>OFF->No trial running, ON->Trial running</use></output>
 ^Out_TDTrial = 13
-\\\<output name="Out_TDBlock" summary="Output ID for block running."><use>OFF->No block running, ON->Block running</use></output>
+\\\<output name="Out_TDBlock" summary="Output ID for block running. (ID 16)"><use>OFF->No block running, ON->Block running</use></output>
 ^Out_TDBlock = 14
-\\\<output name="Out_TDStim1" summary="Output ID to trigger presentation of stimulus 1."><use>OFF->No stim 1, ON->stim 1 playing</use></output>
+\\\<output name="Out_TDStim1" summary="Output ID to trigger presentation of stimulus 1. (ID 1)"><use>OFF->No stim 1, ON->stim 1 playing</use></output>
 ^Out_TDStim1 = 8
-\\\<output name="Out_TDStim2" summary="Output ID to trigger presentation of stimulus 2."><use>OFF->No stim 2, ON->stim 2 playing</use></output>
+\\\<output name="Out_TDStim2" summary="Output ID to trigger presentation of stimulus 2. (ID 2)"><use>OFF->No stim 2, ON->stim 2 playing</use></output>
 ^Out_TDStim2 = 15
-\\\<output name="Out_TDStimType" summary="Output ID to identify whether acoustic or electrical stim."><use>OFF->Acoustic stim, ON->Electrical stim</use></output>
+\\\<output name="Out_TDStimType" summary="Output ID to identify whether acoustic or electrical stim. (ID 4)"><use>OFF->Acoustic stim, ON->Electrical stim</use></output>
 ^Out_TDStimType = 16
+
 
 \\\<constant group="audio" represents="parameter" name="Snd_ToneDuration" summary="Duration of presentation of tone stimulus (in ms)"></constant>
 ^Snd_ToneDuration = 250

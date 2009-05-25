@@ -156,12 +156,10 @@ Var_Alias Maximum Inter-trial Interval		= G(10)
 ^Out_HouseLightMid = 10
 \\\<output name="Out_HouseLightFront" summary="Output ID of front-most house light."><use>OFF->unlit, ON->lit</use></output>
 ^Out_HouseLightFront = 11
-\\\<output name="Out_LedRed" summary="Output ID of Red LED (rearmost)."><use>OFF->unlit, ON->lit</use></output>
-^Out_LedRed = 12
 \\\<output name="Out_TDTrial" summary="Output ID for trial running. (ID 8)"><use>OFF->No trial running, ON->Trial running</use></output>
 ^Out_TDTrial = 13
 \\\<output name="Out_TDBlock" summary="Output ID for block running. (ID 16)"><use>OFF->No block running, ON->Block running</use></output>
-^Out_TDBlock = 14
+^Out_TDBlock = 12
 \\\<output name="Out_TDStim1" summary="Output ID to trigger presentation of stimulus 1. (ID 1)"><use>OFF->No stim 1, ON->stim 1 playing</use></output>
 ^Out_TDStim1 = 8
 \\\<output name="Out_TDStim2" summary="Output ID to trigger presentation of stimulus 2. (ID 2)"><use>OFF->No stim 2, ON->stim 2 playing</use></output>
@@ -171,9 +169,9 @@ Var_Alias Maximum Inter-trial Interval		= G(10)
 
 
 \\\<constant group="audio" represents="parameter" name="Snd_ToneDuration" summary="Duration of presentation of tone stimulus (in ms)"></constant>
-^Snd_ToneDuration = 250
+^Snd_ToneDuration = 240
 \\\<constant group="audio" represents="parameter" name="Snd_InterToneInterval" summary="Time between tone presentations (in ms)"></constant>
-^Snd_InterToneInterval = 250
+^Snd_InterToneInterval = 240
 \\\<constant group="audio" represents="parameter" name="Snd_RiseFallTime" summary="Rise/Fall time (in ms)"></constant>
 ^Snd_RiseFallTime = 10
 
@@ -255,7 +253,7 @@ LIST F = 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,
 ^F_TotalOffsets = 120
 
 \\\<array name="I" summary="Integer list representing acoustic stimulation possiblities">
-LIST I = 0,0,1,1,1,2
+LIST I = 0,0,1,1,2,2
 \\\</array>
 
 \\\<array name="M" summary="Integer list representing electrical stimulation possiblities">
@@ -362,6 +360,7 @@ S1,
 S5,
 	#START:;
 		SHOW 5, Running, 0;
+		ON ^Out_BeverageDispenser;
 		SET G(^G_ShockDurationSec) = (G(^G_ShockDurationMsec) / 1000);
 		SET G(^G_ShockDuration) = (G(^G_ShockDurationSec) * 1");
 		SET G(^G_TrialDuration) = (G(^G_TrialDurationSec) * 1");
@@ -410,6 +409,7 @@ S5,
 \\\<state id="10" summary="Wait for program termination">
 S10,
 	#Z^ZP_TerminateExperiment:;
+		OFF ^Out_BeverageDispenser;
 		OFF ^Out_Ultrasonic;
 		OFF ^Out_HouseLightRear;
 		LOCKOFF ^Out_ShockEmitter;
@@ -468,6 +468,7 @@ S2,
 			---> S3
 S3,
   0":;
+	ON ^Out_TDBlock;
 	SHOW 3, Remain in block, J(^J_RemainInBlock);
 	Z^ZP_TrialStart;
 
@@ -497,7 +498,6 @@ S3,
 S5,
   R#T:;
 	ON ^Out_TDTrial;
-	ON ^Out_TDBlock;
 	Z^ZP_StartStim;
 	SHOW 7, Stim On, L;
 \	~OnFreq(MG, BOX, V);~; \Removed for sound to be presented by TDT 
@@ -693,7 +693,7 @@ S5,
 		SHOW 7, Delivering stimulus B, 0;
 		---> S4
 \\\</state>
-\\\<state id="6,7,8,9 summary="Present mismatch">
+\\\<state id="6,7,8,9" summary="Present mismatch">
 S6,
 	O#T:;
 		OFF ^Out_TDStim1;
@@ -775,30 +775,30 @@ S1,
 \\\<state id="2" summary="Wait for video commands">
 S2,
 	#Z^ZP_StartVideoRec:;
-		~ IF ((box = 1) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX1_CAM1', StartSavingEvent, 'StartEvent'); end; ~;
+		~ IF ((box = 1) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX1', StartSavingEvent, 'StartEvent'); end; ~;
 		~ IF ((box = 2) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX2', StartSavingEvent, 'StartEvent'); end; ~;
 		~ IF ((box = 3) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX3', StartSavingEvent, 'StartEvent'); end; ~;
 		~ IF ((box = 4) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX4', StartSavingEvent, 'StartEvent'); end; ~;
 		---> SX
 	#Z^ZP_EndVideoRec:;
-		~ IF ((box = 1) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX1_CAM1', StopSavingEvent, 'StopEvent'); end; ~;
+		~ IF ((box = 1) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX1', StopSavingEvent, 'StopEvent'); end; ~;
 		~ IF ((box = 2) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX2', StopSavingEvent, 'StopEvent'); end; ~;
 		~ IF ((box = 3) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX3', StopSavingEvent, 'StopEvent'); end; ~;
 		~ IF ((box = 4) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX4', StopSavingEvent, 'StopEvent'); end; ~;
 		---> SX
 	#Z^ZP_TerminateExperiment:;
-		~ IF ((box = 1) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX1_CAM1', StopSavingEvent, 'StopEvent'); end; ~;
+		~ IF ((box = 1) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX1', StopSavingEvent, 'StopEvent'); end; ~;
 		~ IF ((box = 2) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX2', StopSavingEvent, 'StopEvent'); end; ~;
 		~ IF ((box = 3) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX3', StopSavingEvent, 'StopEvent'); end; ~;
 		~ IF ((box = 4) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX4', StopSavingEvent, 'StopEvent'); end; ~;
 
-		~ IF ((box = 1) and (P = CONNECT_OK)) then begin DisconnectVM('.', 'BOX1_CAM1'); P := GetIfaceStatus();end;~;
+		~ IF ((box = 1) and (P = CONNECT_OK)) then begin DisconnectVM('.', 'BOX1'); P := GetIfaceStatus();end;~;
 		~ IF ((box = 2) and (P = CONNECT_OK)) then begin DisconnectVM('.', 'BOX2'); P := GetIfaceStatus();end;~;
 		~ IF ((box = 3) and (P = CONNECT_OK)) then begin DisconnectVM('.', 'BOX3'); P := GetIfaceStatus();end;~;
 		~ IF ((box = 4) and (P = CONNECT_OK)) then begin DisconnectVM('.', 'BOX4'); P := GetIfaceStatus();end;~;
 		---> S32
 	0.5":;
-		~ IF ((box = 1) and (P <> CONNECT_OK)) then begin ConnectToVMEx(MG, BOX, '.', 'BOX1_CAM1'); P := GetIfaceStatus();end;~;
+		~ IF ((box = 1) and (P <> CONNECT_OK)) then begin ConnectToVMEx(MG, BOX, '.', 'BOX1'); P := GetIfaceStatus();end;~;
 		~ IF ((box = 2) and (P <> CONNECT_OK)) then begin ConnectToVMEx(MG, BOX, '.', 'BOX2'); P := GetIfaceStatus();end;~;
 		~ IF ((box = 3) and (P <> CONNECT_OK)) then begin ConnectToVMEx(MG, BOX, '.', 'BOX3'); P := GetIfaceStatus();end;~;
 		~ IF ((box = 4) and (P <> CONNECT_OK)) then begin ConnectToVMEx(MG, BOX, '.', 'BOX4'); P := GetIfaceStatus();end;~;

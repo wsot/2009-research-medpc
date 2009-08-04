@@ -1,0 +1,34 @@
+^Inp_Lickometer = 2
+^Out_Sipper = 2
+^Out_LickShockSwitch = 5
+\\\<output name="Out_LedRed" summary="Output ID of Red LED (rearmost)."><use>OFF->unlit, ON->lit</use></output>
+^Out_LedRed = 12
+\\\<output name="Out_LedGreen" summary="Output ID of Green LED (frontmost)."><use>OFF->unlit, ON->lit</use></output>
+^Out_LedGreen = 13
+\\\<output name="Out_LedYellow" summary="Output ID of Yellow LED (middle)."><use>OFF->unlit, ON->lit</use></output>
+^Out_LedYellow = 14
+
+S.S.1,
+	S1,
+		0": ON ^Out_Sipper; OFF ^Out_LickShockSwitch;
+		SET X = 0;---> S2
+	S2,
+		0.01": SHOW 1, Licks, X; ---> SX
+S.S.2,
+	S1,
+		#R^Inp_Lickometer: SHOW 2, Licked, 1; ADD X; ---> SX
+S.S.3,
+	S1,
+		#R^Inp_Lickometer: ON ^Out_LedRed; ---> S2
+	S2,
+		#R^Inp_Lickometer: ON ^Out_LedYellow; ---> S3
+		0": OFF ^Out_LedRed; ---> S1
+	S3,
+		#R^Inp_Lickometer: ON ^Out_LedGreen; ---> S4
+		0": OFF ^Out_LedRed; OFF ^Out_LedYellow; ---> S1
+	S4,
+		#R^Inp_Lickometer:; ---> SX
+		0": OFF ^Out_LedRed; OFF ^Out_LedYellow; OFF ^Out_LedGreen; ---> S1
+
+
+	

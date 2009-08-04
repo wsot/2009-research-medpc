@@ -1,0 +1,27 @@
+^Inp_HeadEntry = 1
+
+\\\<output name="Out_LedRed" summary="Output ID of Red LED (rearmost)."><use>OFF->unlit, ON->lit</use></output>
+^Out_LedRed = 12
+\\\<output name="Out_LedGreen" summary="Output ID of Green LED (frontmost)."><use>OFF->unlit, ON->lit</use></output>
+^Out_LedGreen = 13
+\\\<output name="Out_LedYellow" summary="Output ID of Yellow LED (middle)."><use>OFF->unlit, ON->lit</use></output>
+^Out_LedYellow = 14
+
+S.S.1,
+	S1,
+		0.01": SHOW 1, Head Entries, X; ---> SX
+S.S.2,
+	S1,
+		#R^Inp_HeadEntry: SHOW 2, Head Entry, 1; ADD X; ---> SX
+S.S.3,
+	S1,
+		#R^Inp_HeadEntry: ON ^Out_LedRed; ---> S2
+	S2,
+		#R^Inp_HeadEntry: ON ^Out_LedYellow; ---> S3
+	S3,
+		#R^Inp_HeadEntry: ON ^Out_LedGreen; ---> S4
+	S4,
+		#R^Inp_HeadEntry: OFF ^Out_LedRed; OFF ^Out_LedYellow; OFF ^Out_LedGreen; ---> S1
+
+
+	

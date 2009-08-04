@@ -2,11 +2,11 @@
 \\\<?xml-stylesheet type="text/xsl" href="comments.xsl"?>
 \\\
 \\\<program>
-\\\<title>Fear Conditioning Paradigm Code - Antonio Paolini&quot;s 2008 third-year research group</title>
+\\\<title>Fear Conditioning - 10s continuous stimulation presentation with acoustic & electrical support</title>
 \\\<history>
 \\\ <revision number="1.0">
-\\\  <author>Simeon Morgan &lt;smorgan@students.latrobe.edu.au&gt;</author>
-\\\  <created>2008-07-02 14:09</created>
+\\\  <author>Simeon Morgan &lt;s.morgan@latrobe.edu.au&gt;</author>
+\\\  <created>2009-08-04 17:54</created>
 \\\  <summary>First version</summary>
 \\\ </revision>
 \\\</history>
@@ -19,9 +19,9 @@ Y2KCOMPLIANT \\\Force use of 4-digit year
 \\\<constant group="general" represents="parameter" name="Def_TrialsPerBlockAcoustic" summary="Default maximum number of trials for each block for acoustic stim"></constant>
 ^Def_TrialsPerBlockAcoustic = 4
 \\\<constant group="general" represents="parameter" name="Def_MaxBlocksElectric" summary="Default maximum number of blocks to be recorded/processed for electrical stim"></constant>
-^Def_MaxBlocksElectric = 4
+^Def_MaxBlocksElectric = 6
 \\\<constant group="general" represents="parameter" name="Def_TrialsPerBlockElectric" summary="Default number of trials for each block for electrical stim"></constant>
-^Def_TrialsPerBlockElectric = 18
+^Def_TrialsPerBlockElectric = 8
 \\\<constant group="general" represents="parameter" name="Def_TrialDuration" summary="Duration of a single trial in sec"></constant>
 ^Def_TrialDuration = 10
 \\\<constant group="general" represents="parameter" name="Abs_MaxTrials" summary="Limit on maximum number of trials to be recorded/processed"></constant>
@@ -36,7 +36,7 @@ Y2KCOMPLIANT \\\Force use of 4-digit year
 ^Def_TrialsType = 0
 
 \\\<array name="G" outputName="Configuration" summary="">
-DIM G = 24
+DIM G = 25
 \\\<column name="G_MaxBlocks" outputName="Max Blocks" summary="Number of blocks before automatic termination"></column>
 ^G_MaxBlocks = 0
 \\\<column name="G_MaxTrials" outputName="Max Trials" summary="Number of trials before automatic termination"></column>
@@ -87,6 +87,8 @@ DIM G = 24
 ^G_ToneDurationTicks = 23
 \\\<column name="G_InterToneIntervalTicks" outputName="Inter-tone interval" summary="Time between tone presentations"></column>
 ^G_InterToneIntervalTicks = 24
+\\\<column name="G_ThisInterTrialIntervalTicks" summary="This single inter-trial interval in ticks"></column>
+^G_ThisInterTrialIntervalTicks = 25
 \\\</array>
 
 \\\<enum name="G_ShocksOn" summary="Identifiers for shocks on or off">
@@ -202,6 +204,9 @@ Var_Alias Maximum Inter-trial Interval		= G(10)
 \\\<constant group="z-pulse" represents="parameter" name="ZP_EndVideoRec" summary="End video recording"></constant>
 ^ZP_EndVideoRec = 6
 
+\\\<constant group="z-pulse" represents="parameter" name="ZP_GenerateNextTrial" summary="Select what type of trial is next"></constant>
+^ZP_GenerateNextTrial = 7
+
 \\\ARRAYS
 \\\<array name="J" outputName="Trial summary" summary="Trial summary data">
 DIM J = 8
@@ -245,7 +250,7 @@ DIM K = 90000 \ we wish it could be (^Gen_MaxTrials * 6) - 1
 \\\<constant group="general" represents="parameter" name="K_TrialIndexMultiplier" summary="Multiplier to be used for each trial"></constant>
 ^K_TrialIndexMultiplier = 9
 
-\\\<array name="F" summary="Interval offset multipliers">
+\\\<array name="F" summary="Inter-trial interval offset multipliers">
 LIST F = 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,
 	 101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120
 \\\<column name="F_IntervalOffset" summary="An integer 0-120 to multiply by the (MaxITI - MinITI) and divided by 120 to get the 'inter-trial interval'" />
@@ -255,28 +260,30 @@ LIST F = 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,
 ^F_TotalOffsets = 120
 
 \\\<array name="I" summary="Integer list representing acoustic stimulation possiblities">
-LIST I = 0,0,1,1
+LIST I = 2,2,3,3
 \\\</array>
 
 \\\<array name="M" summary="Integer list representing electrical stimulation possiblities">
-LIST M = 0,2,3,3,3,3,3,4,4,4,4,4,5,5,5,6,6,6
+LIST M = 3,6,6,6,7,7,7
 \\\</array>
 
 \\\<enum name="TrialType" summary="Identifiers for trial types">
 \\\\<option value="0" name="^TrialType_AcousticMatchA" summary="Acoustic match A trial"></option>
 ^TrialType_AcousticMatchA = 0
-\\\\<option value="0" name="^TrialType_AcousticMatchB" summary="Acoustic match B trial"></option>
+\\\\<option value="1" name="^TrialType_AcousticMatchB" summary="Acoustic match B trial"></option>
 ^TrialType_AcousticMatchB = 1
-\\\\<option value="0" name="^TrialType_AcousticMismatch" summary="Acoustic mismatch trial"></option>
-^TrialType_AcousticMismatch = 2
-\\\\<option value="0" name="^TrialType_ElectricMatchA" summary="Electric match A trial"></option>
-^TrialType_ElectricMatchA = 3
-\\\\<option value="0" name="^TrialType_ElectricMatchB" summary="Electric match B trial"></option>
-^TrialType_ElectricMatchB = 4
-\\\\<option value="0" name="^TrialType_ElectricMismatchAB" summary="Electric mismatch A-B trial"></option>
-^TrialType_ElectricMismatchAB = 5
-\\\\<option value="0" name="^TrialType_ElectricMismatchBA" summary="Electric mismatch B-A trial"></option>
-^TrialType_ElectricMismatchBA = 6
+\\\\<option value="2" name="^TrialType_AcousticMismatchAB" summary="Acoustic mismatch AB trial"></option>
+^TrialType_AcousticMismatchAB = 2
+\\\\<option value="3" name="^TrialType_AcousticMismatchBA" summary="Acoustic mismatch BA trial"></option>
+^TrialType_AcousticMismatchBA = 3
+\\\\<option value="4" name="^TrialType_ElectricMatchA" summary="Electric match A trial"></option>
+^TrialType_ElectricMatchA = 4
+\\\\<option value="5" name="^TrialType_ElectricMatchB" summary="Electric match B trial"></option>
+^TrialType_ElectricMatchB = 5
+\\\\<option value="6" name="^TrialType_ElectricMismatchAB" summary="Electric mismatch A-B trial"></option>
+^TrialType_ElectricMismatchAB = 6
+\\\\<option value="7" name="^TrialType_ElectricMismatchBA" summary="Electric mismatch B-A trial"></option>
+^TrialType_ElectricMismatchBA = 7
 \\\</enum>
 
 
@@ -313,12 +320,8 @@ DIM H = 60000
 \\\<variable name="L" summary="Trial type"></variable>
 \\\<variable name="N" summary="Current stimulus type"></variable>
 
-\\\<variable name="O" summary=""></variable>
-\\\<variable name="Y" summary=""></variable>
-
 \\\<variable name="P" summary="Storage variable for camera state"></variable>
 \\\<variable name="Q" summary="Current offset for B array"></variable>
-\\\<variable name="R" summary="Inter-trial pause in ticks (generated)"></variable>
 \\\<variable name="S" summary="Inter-trial pause in seconds (generated)"></variable>
 \\\<variable name="X" summary="Inter-trial countdown in seconds (generated)"></variable>
 \\\<variable name="V" summary="Temporary store for shuffling data to sound processor"></variable>
@@ -440,26 +443,31 @@ S1,
 	#START:;
 		---> S2
 \\\</state>
-\\\<state id="2" summary="Generate randomly-determined Inter-Trial Pause, and update trial data">
+\\\<state id="2" summary="Generate randomly-determined Inter-Trial Pause; update trial data">
 S2,
   0.01":;
-	ON ^Out_TDBlock;
-	SET Q = J(^J_CompletedTrials) * ^K_TrialIndexMultiplier;
-	SET K(Q + ^K_TrialIndexMultiplier) = -987.987;
+	ON ^Out_TDBlock; \\Start block (if not already on; if already on, does nothing) 
+
+	\\Generate inter-trial interval; must be an integer to ensure that the 'trial' beeps will temporally line up with the regular 'background' beeps.
 	RANDI S = F;
 	SET S = S * (G(^G_MaxITI) - G(^G_MinITI)) / ^F_TotalOffsets;
 	SET S = G(^G_MinITI) + S;
 	~S := Round(S);~;
 	SHOW 4, Inter-trial delay, S;
-	SET R = S * 1";
 
+	\\Update trial data
+	SET Q = J(^J_CompletedTrials) * ^K_TrialIndexMultiplier;
+	SET K(Q + ^K_TrialIndexMultiplier) = -987.987;
 	SET K(Q + ^K_TrialNumber) = J(^J_CompletedTrials);
 	SET K(Q + ^K_TrialTimeHour) = J(^J_CurrentHours), K(Q + ^K_TrialTimeMinute) = J(^J_CurrentMinutes), K(Q + ^K_TrialTimeSecond) = J(^J_CurrentSeconds), K(Q + ^K_TrialTimeMillisecond) = J(^J_CurrentMilliseconds);
 	SET K(Q + ^K_TrialMsec) = T;
 	SET K(Q + ^K_TrialNumber) = J(^J_CompletedTrials);
 	SET K(Q + ^K_PreITI) = S;
 	SET K(Q + ^K_TrialIndexMultiplier) = -987.987;
+	SET K(Q + ^K_TrialType) = L;
+	SHOW 6, Trial Type, L;
 
+	\\If the block is complete, reset the block count
 	IF J(^J_RemainInBlock) < 1 [@completed block, @incomplete block]
 		@completed block:;
 			IF G(^G_TrialsType) = ^G_TrialType_Acoustic [@acoustic trial, @not acoustic trial]
@@ -472,19 +480,24 @@ S2,
 		@incomplete block:;
 			---> S3
 \\\</state>
+
 \\\<state id="3" summary="Modify inter-trial pause to compensate for cumulative timing error">
 S3,
   0.01":;
+	\\Display trial type, and enter it in the data array
+
 	SHOW 3, Remain in block, J(^J_RemainInBlock);
 	Z^ZP_TrialStart;
+
+	\\If it is the first trial, then don't need to compensate as much due to less timepoints having passed
 	IF J(^J_CompletedTrials) = 0 [@small offset, @large offset]
 		@small offset:;
 			SET S = S - 0.03;
-			SET R = S * 1";
+			SET G(^G_ThisInterTrialIntervalTicks) = S * 1";
 			---> S4
 		@large offset:;
 			SET S = S - 0.04;
-			SET R = S * 1";
+			SET G(^G_ThisInterTrialIntervalTicks) = S * 1";
 			---> S4
 \\\</state>
 
@@ -492,28 +505,23 @@ S3,
 S4,
 	0.01":;
 	\If trial type acoustic, select from acoustic list of presentations; if electrical, select from electrical list
-	IF G(^G_TrialsType) = ^G_TrialType_Acoustic [@acoustic trial, @not acoustic trial]
-		@acoustic trial:;
-			RANDD L = I; \select trial type for acoustic
-			SHOW 6, Trial Type, L;
-			SET K(Q + ^K_TrialType) = L;
+	IF (L = ^TrialType_AcousticMismatchBA) OR (L = ^TrialType_AcousticMismatchAB) [@shock, @not shock]
+		@shock:;
 				---> S5
-		@not acoustic trial:;
-			RANDD L = M; \select trial type for electrical
-			SHOW 6, Trial Type, L;
-			SET K(Q + ^K_TrialType) = L;
-				---> S5
+		@not shock:;
+				---> S9
 \\\</state>
 
 \\\<state id="5" summary="Shock trial - Commence tone after inter-trial delay">
 S5,
-  R#T:;
+  G(^G_ThisInterTrialIntervalTicks)#T:;
 	ON ^Out_TDTrial;
-	SET N = ^TrialType_AcousticMismatch;
+	SET N = L;
 	SHOW 7, Stim On, L;
 \	~OnFreq(MG, BOX, V);~; \Removed for sound to be presented by TDT 
 	---> S6
 \\\</state>
+
 \\\<state id="6" summary="Shock trial - Pause until shock delivery, then commence shock">
 S6,
   G(^G_ToneShockDelay)#T:;
@@ -522,59 +530,45 @@ S6,
 			SET K(Q + ^K_Shock) = 1;
 			SHOW 3, Delivering shock, S;
 			ON ^Out_ShockEmitter;
-			---> S7
+			---> S12
 		@shocks off:;
 			SET K(Q + ^K_Shock) = 0;
-			---> S7
-\\\</state>
-\\\<state id="7" summary="Shock trial - wait until final inter-tone interval, then turn off TDType">
-S7,
-  G(^G_ShockDurPartA)#T:;
-	SET N = L; 
-	IF J(^J_RemainInBlock) = 1 [@end block, @not end]
-	@end block:;
-		OFF ^Out_TDBlock;
-		---> S8
-	@not end:;
-		---> S8
-\\\</state>
-
-\\\<state id="8" summary="Shock trial - Wait shock duration then end shock">
-S8,
-  G(^G_ToneDurationTicks)#T:;
-	OFF ^Out_ShockEmitter;
-	CLEAR 3,3;
-	OFF ^Out_TDTrial;
-	---> S31
+			---> S12
 \\\</state>
 
 \\\<state id="9" summary="Non-shock trial - commence tone after inter-trial delay">
 S9,
-  R#T:;
+  G(^G_ThisInterTrialIntervalTicks)#T:;
 	ON ^Out_TDTrial;
-	ON ^Out_TDBlock;
-	SET N = ^TrialType_ElectricMismatchAB;
+	SET N = L;
 	SHOW 7, Stim On, L;
 	---> S10
 \\\</state>
+
 \\\<state id="10" summary="Non-shock Trial - Continue stimulus when should would be occurring">
 S10,
   G(^G_ToneShockDelay)#T:;
 	---> S11
 \\\</state>
-\\\<state id="11" summary="Non-shock Trial - wait until final inter-tone interval, then turn off TDType">
-S11,
+
+\\\<state id="12" summary="Any trial - wait until final inter-tone interval, then update next trial type">
+S12,
   G(^G_ShockDurPartA)#T:;
-	SET N = L; 
+	Z^ZP_GenerateNextTrial;
+
 	IF J(^J_RemainInBlock) = 1 [@end block, @not end]
 	@end block:;
 		OFF ^Out_TDBlock;
-		---> S12
+		---> S13
 	@not end:;
-		---> S12
-\\\<state id="12" summary="Non-shock Trial - Wait shock duration">
-S12,
-  G(^G_ShockDuration)#T:;
+		---> S13
+\\\</state>
+
+\\\<state id="13" summary="Any trial - Wait shock duration then end shock">
+S13,
+  G(^G_ToneDurationTicks)#T:;
+	OFF ^Out_ShockEmitter;
+	CLEAR 3,3;
 	OFF ^Out_TDTrial;
 	---> S31
 \\\</state>
@@ -631,59 +625,33 @@ S.S.4,
 \\\<state id="1" summary="Wait for start signal, then jump to appropriate tone presentation area">
 S1,
 	#START:;
-		RANDD L = I; \select trial type for acoustic
-		SET N = L; 
-		SHOW 8, Tr Type B, N;
-		IF N = ^TrialType_AcousticMatchA [@ac match A, @not ac match A]
-			@ac match A:;
+		IF G(^G_TrialsType) = ^G_TrialType_Acoustic [@acoustic, @not acoustic]
+			@acoustic:;
+			RANDD L = I; \select trial type for acoustic
+			IF L = ^TrialType_AcousticMismatchAB [@ac mismatch ab, @not ac mismatch ab]
+				@ac mismatch ab:;
+				SET N = 0;
 				OFF ^Out_TDStimType;
 				ON ^Out_TDStim1;
 				SHOW 7, Delivering stimulus A, 0;
 				---> S10
-			@not ac match A:;
-				IF N = ^TrialType_AcousticMatchB [@ac match B, @not ac match B]
-				@ac match B:;
-					OFF ^Out_TDStimType;
-					ON ^Out_TDStim2;
-					SHOW 7, Delivering stimulus B, 0;
-					---> S10
-				@not ac match B:;
-				IF N = ^TrialType_AcousticMismatch [@ac mismatch, @not ac mismatch]
-					@ac mismatch:;
-					OFF ^Out_TDStimType;
-					ON ^Out_TDStim1;
-					SHOW 7, Delivering stimulus A, 0;
-					---> S12
-					@not ac mismatch:;
-					IF N = ^TrialType_ElectricMatchA [@el match A, @not el match A]
-						@el match A:;
-						ON ^Out_TDStimType;
-						ON ^Out_TDStim1;
-						SHOW 7, Delivering stimulus A, 0;
-						---> S10
-						@not el match A:;
-						IF N = ^TrialType_ElectricMatchB [@el match B, @not el match B]
-							@ac match B:;
-							ON ^Out_TDStimType;
-							ON ^Out_TDStim2;
-							SHOW 7, Delivering stimulus B, 0;
-							---> S10
-							@not ac match B:;
-							IF N = ^TrialType_ElectricMismatchAB [@el mismatch AB, @el mismatch BA]
-								@el mismatch AB:;
-								ON ^Out_TDStimType;
-								ON ^Out_TDStim1;
-								SHOW 7, Delivering stimulus A, 0;
-								---> S12
-								@el mismatch ba:;
-								ON ^Out_TDStimType;
-								ON ^Out_TDStim2;
-								SHOW 7, Delivering stimulus B, 0;
-								---> S16
-
+				@ac mismatch ba:;
+				SET N = 1;
+				OFF ^Out_TDStimType;
+				ON ^Out_TDStim2;
+				SHOW 7, Delivering stimulus B, 0;
+				---> S10
+			@not acoustic:;
+				\\First presentation for electrical trials is always an acoustic mismatch AB
+				SET L = ^TrialType_AcousticMismatchAB;
+				SET N = 1;
+				OFF ^Out_TDStimType;
+				ON ^Out_TDStim1;
+				SHOW 7, Delivering stimulus A, 0;
+				---> S10
 \\\</state>
-\\\<state id="1" summary="Pause for inter-tone interval, then jump to appropriate tone presentation area">
-S2,
+\\\<state id="3" summary="Pause for inter-tone interval, then jump to appropriate tone presentation area">
+S3,
 	G(^G_InterToneIntervalTicks)#T:;
 		SHOW 8, Tr Type B, N;
 		IF N = ^TrialType_AcousticMatchA [@ac match A, @not ac match A]
@@ -700,38 +668,45 @@ S2,
 					SHOW 7, Delivering stimulus B, 0;
 					---> S10
 				@not ac match B:;
-				IF N = ^TrialType_AcousticMismatch [@ac mismatch, @not ac mismatch]
-					@ac mismatch:;
+				IF N = ^TrialType_AcousticMismatchAB [@ac mismatch ab, @not ac mismatch ab]
+					@ac mismatch ab:;
 					OFF ^Out_TDStimType;
 					ON ^Out_TDStim1;
 					SHOW 7, Delivering stimulus A, 0;
 					---> S12
-					@not ac mismatch:;
-					IF N = ^TrialType_ElectricMatchA [@el match A, @not el match A]
-						@el match A:;
-						ON ^Out_TDStimType;
-						ON ^Out_TDStim1;
-						SHOW 7, Delivering stimulus A, 0;
-						---> S10
-						@not el match A:;
-						IF N = ^TrialType_ElectricMatchB [@el match B, @not el match B]
-							@ac match B:;
+					@not ac mismatch ab:;
+					IF N = ^TrialType_AcousticMismatchBA [@ac mismatch ba, @not ac mismatch ba]
+						@ac mismatch ba:;
+						OFF ^Out_TDStimType;
+						ON ^Out_TDStim2;
+						SHOW 7, Delivering stimulus B, 0;
+						---> S16
+						@not ac mismatch ba:;
+						IF N = ^TrialType_ElectricMatchA [@el match A, @not el match A]
+							@el match A:;
 							ON ^Out_TDStimType;
-							ON ^Out_TDStim2;
-							SHOW 7, Delivering stimulus B, 0;
+							ON ^Out_TDStim1;
+							SHOW 7, Delivering stimulus A, 0;
 							---> S10
-							@not ac match B:;
-							IF N = ^TrialType_ElectricMismatchAB [@el mismatch AB, @el mismatch BA]
-								@el mismatch AB:;
-								ON ^Out_TDStimType;
-								ON ^Out_TDStim1;
-								SHOW 7, Delivering stimulus A, 0;
-								---> S12
-								@el mismatch ba:;
+							@not el match A:;
+							IF N = ^TrialType_ElectricMatchB [@el match B, @not el match B]
+								@ac match B:;
 								ON ^Out_TDStimType;
 								ON ^Out_TDStim2;
 								SHOW 7, Delivering stimulus B, 0;
-								---> S16
+								---> S10
+								@not ac match B:;
+								IF N = ^TrialType_ElectricMismatchAB [@el mismatch AB, @el mismatch BA]
+									@el mismatch AB:;
+									ON ^Out_TDStimType;
+									ON ^Out_TDStim1;
+									SHOW 7, Delivering stimulus A, 0;
+									---> S12
+									@el mismatch ba:;
+									ON ^Out_TDStimType;
+									ON ^Out_TDStim2;
+									SHOW 7, Delivering stimulus B, 0;
+									---> S16
 	#Z^ZP_ExperimentEnd:;
 		---> S32
 \\\</state>
@@ -741,7 +716,7 @@ S10,
 		OFF ^Out_TDStim1;
 		OFF ^Out_TDStim2;
 		SHOW 7, Stim off, 0;
-			---> S2
+			---> S3
 \\\</state>
 \\\<state id="12,13,14" summary="Present mismatch AB">
 S12,
@@ -758,7 +733,7 @@ S14,
 	G(^G_ToneDurationTicks)#T:;
 		OFF ^Out_TDStim2;
 		SHOW 7, Stim off, 0;
-		---> S2
+		---> S3
 \\\</state>
 
 \\\<state id="16,17,18,19" summary="Present mismatch BA">
@@ -776,10 +751,50 @@ S18,
 	G(^G_ToneDurationTicks)#T:;
 		OFF ^Out_TDStim1;
 		SHOW 7, Stim off, 0;
-		---> S2
+		---> S3
 \\\</state>
 
 \\\</stateset>
+
+\\\<stateset id="5" summary="Trial random generator">
+S.S.5,
+\\\<state id="1" summary="Wait for randomiser trigger, then generate next trial type">
+S1,
+	#Z^ZP_GenerateNextTrial:;
+		\\Select next trial type
+		\\acoustic only trials?
+		IF G(^G_TrialsType) = ^G_TrialType_Acoustic [@acoustic, @not acoustic]
+			@acoustic:;
+			RANDD L = I; \select trial type for acoustic
+			---> S2
+		@not acoustic:;
+			\\If end of block, and doing electrical trials, then the next must be an acoustic mismatch - always used as first in block
+			IF J(^J_RemainInBlock) = 1 [@end block, @not end]
+			@end block:;
+				\\If the block is complete and it is electrical trials, set an acoustic mismatch AB to start the block
+				SET L = ^TrialType_AcousticMismatchAB;
+				---> S2
+			@not end:;
+				\\The block is not complete, so any type of electrical trial can be used
+				RANDD L = M; \select trial type for electrical
+				---> S2
+
+\\\</state>
+\\\<state id="2" summary="Work out what should be presented prior to start of next trial">
+S2,
+	0.01":;
+		\If acoustic AB, then start with continuous stim A presentations
+		~ IF (L = 2) then begin N := 0 ; end; ~;
+		\If acoustic BA, then start with continuous stim B presentations
+		~ IF (L = 3) then begin N := 1 ; end; ~;
+		\If electrical AB, then start with continuous electrical stim A presentations
+		~ IF (L = 6) then begin N := 4 ; end; ~;
+		\If electrical BA, then start with continuous electrical stim B presentations
+		~ IF (L = 7) then begin N := 5 ; end; ~;
+		---> S1
+\\\</state>
+\\\</stateset>
+
 
 
 \\\<stateset id="7" summary="Timer - counts up in msec (in steps of 10 msec)">
@@ -840,10 +855,10 @@ S2,
 		~ IF ((box = 4) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX4', StopSavingEvent, 'StopEvent'); end; ~;
 		---> SX
 	#Z^ZP_TerminateExperiment:;
-		~ IF ((box = 1) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX1', StopSavingEvent, 'StopEvent'); end; ~;
-		~ IF ((box = 2) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX2', StopSavingEvent, 'StopEvent'); end; ~;
-		~ IF ((box = 3) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX3', StopSavingEvent, 'StopEvent'); end; ~;
-		~ IF ((box = 4) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX4', StopSavingEvent, 'StopEvent'); end; ~;
+\\		~ IF ((box = 1) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX1', StopSavingEvent, 'StopEvent'); end; ~;
+\\		~ IF ((box = 2) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX2', StopSavingEvent, 'StopEvent'); end; ~;
+\\		~ IF ((box = 3) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX3', StopSavingEvent, 'StopEvent'); end; ~;
+\\		~ IF ((box = 4) and (P = CONNECT_OK)) then begin WriteEventVM('.', 'BOX4', StopSavingEvent, 'StopEvent'); end; ~;
 
 		~ IF ((box = 1) and (P = CONNECT_OK)) then begin DisconnectVM('.', 'BOX1'); P := GetIfaceStatus();end;~;
 		~ IF ((box = 2) and (P = CONNECT_OK)) then begin DisconnectVM('.', 'BOX2'); P := GetIfaceStatus();end;~;
@@ -965,8 +980,8 @@ S.S.25,
 S1,
 	#START:;
 		---> S2
-\\\<state id="2" summary="Check for experiment termination">
 \\\</state>
+\\\<state id="2" summary="Check for experiment termination">
 S2,
 	#K^KP_ExperimentEnd:;
 		SHOW 4, Manually terminated, 0;

@@ -11,6 +11,7 @@
 		<xsl:call-template name="outputIO" />
 		<xsl:call-template name="outputConstants" />
 		<xsl:call-template name="outputVariables" />
+		<xsl:call-template name="outputEnums" />
 		<xsl:call-template name="outputArrays" />
 	</xsl:template>
 
@@ -111,6 +112,42 @@
 
 	</xsl:template>
 
+	<xsl:template name="outputEnums">
+		<xsl:if test="/program/enum">
+			<table summary="List of enumerations used in the program">
+				<caption>Enums</caption>
+				<tr>
+					<th>Name</th>
+					<th>Function</th>
+				</tr>
+			<xsl:for-each select="/program/enum">
+				<tr>
+					<td class="name"><a><xsl:attribute name="href">#enum<xsl:value-of select="@name" /></xsl:attribute><xsl:value-of select="@name" /></a></td>
+					<td class="summary"><xsl:value-of select="@summary" /></td>
+				</tr>
+			</xsl:for-each>
+			</table>
+
+			<xsl:for-each select="/program/enum">
+				<table summary="Enumeration values">
+					<caption><a><xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute>Values for enumeration <xsl:value-of select="@name" /></a></caption>
+					<tr>
+						<th>Value</th>
+						<th>Name</th>
+						<th>Summary</th>
+					</tr>
+				<xsl:for-each select="option">
+					<tr>
+						<td><xsl:value-of select="@value" /></td>
+						<td class="name"><xsl:value-of select="@name" /></td>
+						<td><xsl:value-of select="@summary" /></td>
+					</tr>
+				</xsl:for-each>
+				</table>
+			</xsl:for-each>
+		</xsl:if>
+	</xsl:template>
+
 
 	<xsl:template name="outputArrays">
 		<xsl:if test="/program/array">
@@ -118,10 +155,12 @@
 				<caption>Arrays</caption>
 				<tr>
 					<th>Name</th>
+					<th>Function</th>
 				</tr>
 			<xsl:for-each select="/program/array">
 				<tr>
 					<td class="name"><a><xsl:attribute name="href">#<xsl:value-of select="@name" /></xsl:attribute><xsl:value-of select="@name" /></a></td>
+					<td class="summary"><xsl:value-of select="@summary" /></td>
 				</tr>
 			</xsl:for-each>
 			</table>

@@ -548,7 +548,7 @@ S9,
 \\\<state id="10" summary="Non-shock Trial - Continue stimulus when should would be occurring">
 S10,
   G(^G_ToneShockDelay)#T:;
-	---> S11
+	---> S12
 \\\</state>
 
 \\\<state id="12" summary="Any trial - wait until final inter-tone interval, then update next trial type">

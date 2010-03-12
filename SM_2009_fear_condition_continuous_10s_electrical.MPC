@@ -27,9 +27,9 @@ Y2KCOMPLIANT \\\Force use of 4-digit year
 \\\<constant group="general" represents="parameter" name="Abs_MaxTrials" summary="Limit on maximum number of trials to be recorded/processed"></constant>
 ^Abs_MaxTrials = 10000
 \\\<constant group="general" represents="parameter" name="Def_MinITI" summary="Default minimum Inter-trial interval (in sec)"></constant>
-^Def_MinITI = 90
+^Def_MinITI = 110
 \\\<constant group="general" represents="parameter" name="Def_MaxITI" summary="Default maximum Inter-trial interval (in sec)"></constant>
-^Def_MaxITI = 180
+^Def_MaxITI = 200
 \\\<constant group="general" represents="parameter" name="Def_ShocksOn" summary="Whether to deliver shocks (1=on, 0=off)"></constant>
 ^Def_ShocksOn = 1
 \\\<constant group="general" represents="parameter" name="Def_TrialsType" summary="Default trials type (0=acoustic, 1=electrical, 2=random)"></constant>
@@ -264,7 +264,7 @@ LIST I = 2,2,3,3
 \\\</array>
 
 \\\<array name="M" summary="Integer list representing electrical stimulation possiblities">
-LIST M = 2,3,3,6,6,7,7
+LIST M = 3,6,6,6,7,7,7
 \\\</array>
 
 \\\<enum name="TrialType" summary="Identifiers for trial types">
@@ -284,6 +284,8 @@ LIST M = 2,3,3,6,6,7,7
 ^TrialType_ElectricMismatchAB = 6
 \\\\<option value="7" name="^TrialType_ElectricMismatchBA" summary="Electric mismatch B-A trial"></option>
 ^TrialType_ElectricMismatchBA = 7
+\\\\<option value="8" name="^TrialType_NoStim" summary="Used for temporary period of no sound presentation"></option>
+^TrialType_NoStim = 8
 \\\</enum>
 
 
@@ -696,17 +698,25 @@ S3,
 								SHOW 7, Delivering stimulus B, 0;
 								---> S10
 								@not ac match B:;
-								IF N = ^TrialType_ElectricMismatchAB [@el mismatch AB, @el mismatch BA]
+								IF N = ^TrialType_ElectricMismatchAB [@el mismatch AB, @not el mismatch AB]
 									@el mismatch AB:;
 									ON ^Out_TDStimType;
 									ON ^Out_TDStim1;
 									SHOW 7, Delivering stimulus A, 0;
 									---> S12
 									@el mismatch ba:;
-									ON ^Out_TDStimType;
-									ON ^Out_TDStim2;
-									SHOW 7, Delivering stimulus B, 0;
-									---> S16
+									IF N = ^TrialType_ElectricMismatchBA [@el mismatch BA, @no stim]
+										@el mismatch ba:;
+										ON ^Out_TDStimType;
+										ON ^Out_TDStim2;
+										SHOW 7, Delivering stimulus B, 0;
+										---> S16
+										@no stim:;
+										OFF ^Out_TDStimType;
+										OFF ^Out_TDStim1;
+										OFF ^Out_TDStim2;
+										SHOW 7, No Stim, 0;
+										---> S3
 	#Z^ZP_ExperimentEnd:;
 		---> S32
 \\\</state>
@@ -763,6 +773,7 @@ S1,
 	#Z^ZP_GenerateNextTrial:;
 		\\Select next trial type
 		\\acoustic only trials?
+		SET N = 8;
 		IF G(^G_TrialsType) = ^G_TrialType_Acoustic [@acoustic, @not acoustic]
 			@acoustic:;
 			RANDD L = I; \select trial type for acoustic
@@ -782,7 +793,7 @@ S1,
 \\\</state>
 \\\<state id="2" summary="Work out what should be presented prior to start of next trial">
 S2,
-	0.01":;
+	20":;
 		\If acoustic AB, then start with continuous stim A presentations
 		~ IF (L = 2) then begin N := 0 ; end; ~;
 		\If acoustic BA, then start with continuous stim B presentations

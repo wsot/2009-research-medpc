@@ -34,9 +34,11 @@ Y2KCOMPLIANT \\\Force use of 4-digit year
 ^Def_ShocksOn = 1
 \\\<constant group="general" represents="parameter" name="Def_TrialsType" summary="Default trials type (0=acoustic, 1=electrical, 2=random)"></constant>
 ^Def_TrialsType = 0
+\\\<constant group="general" represents="parameter" name="Def_SilenceDuration" summary="Duration of silence (in seconds) after the end of a trial"></constant>
+^Def_SilenceDuration = 20
 
 \\\<array name="G" outputName="Configuration" summary="">
-DIM G = 25
+DIM G = 27
 \\\<column name="G_MaxBlocks" outputName="Max Blocks" summary="Number of blocks before automatic termination"></column>
 ^G_MaxBlocks = 0
 \\\<column name="G_MaxTrials" outputName="Max Trials" summary="Number of trials before automatic termination"></column>
@@ -89,6 +91,10 @@ DIM G = 25
 ^G_InterToneIntervalTicks = 24
 \\\<column name="G_ThisInterTrialIntervalTicks" summary="This single inter-trial interval in ticks"></column>
 ^G_ThisInterTrialIntervalTicks = 25
+\\\<column name="G_SilenceDurationS" summary="Duration of period of silence after trial (in S)"></column>
+^G_SilenceDurationS = 26
+\\\<column name="G_SilenceDurationTicks" summary="Duration of period of silence after trial (in ticks)"></column>
+^G_SilenceDurationTicks = 27
 \\\</array>
 
 \\\<enum name="G_ShocksOn" summary="Identifiers for shocks on or off">
@@ -124,6 +130,8 @@ Var_Alias Intertone Duration (sec)				= G(7)
 Var_Alias Minimum Inter-trial Interval		= G(9)
 \\\<variable alias="Maximum Inter-trial Interval (sec)" name="G(^G_MaxITI)" summary="Maximum inter-trial interval (in sec)"></variable>
 Var_Alias Maximum Inter-trial Interval		= G(10)
+\\\<variable alias="Inter-trial silence period" name="G(^G_SilenceDurationS)" summary="Duration of period of silence after trial (in S)""></variable>
+Var_Alias Inter-trial silence period		= G(26)
 
 
 \\\Example comment line <!--<constant represents="input|output|other" name="LeverTrigger" summary="Input ID of the fixed lever 'starting' trigger"></constant>-->
@@ -373,6 +381,7 @@ S5,
 		SET G(^G_ShockDurPartA) = ((G(^G_ShockDurationSec) - G(^G_InterToneIntervalSec))* 1");
 		SET G(^G_TrialDuration) = (G(^G_TrialDurationSec) * 1");
 		SET G(^G_ToneShockDelay) = (G(^G_TrialDurationSec) - G(^G_ShockDurationSec)) * 1";
+		SET G(^G_SilenceDurationTicks) = (G(^G_SilenceDurationS) * 1");
 
 		\initialise sound unit - disabled because using TDT to deliver stim
 \		~InitANL926;~;
@@ -453,7 +462,7 @@ S2,
 	\\Generate inter-trial interval; must be an integer to ensure that the 'trial' beeps will temporally line up with the regular 'background' beeps.
 	RANDI S = F;
 	SET S = S * (G(^G_MaxITI) - G(^G_MinITI)) / ^F_TotalOffsets;
-	SET S = G(^G_MinITI) + S;
+	SET S = G(^G_MinITI) + S + G(^G_SilenceDurationS);
 	~S := Round(S);~;
 	SHOW 4, Inter-trial delay, S;
 
@@ -793,7 +802,7 @@ S1,
 \\\</state>
 \\\<state id="2" summary="Work out what should be presented prior to start of next trial">
 S2,
-	20":;
+	G(^G_SilenceDurationTicks)#T:;
 		\If acoustic AB, then start with continuous stim A presentations
 		~ IF (L = 2) then begin N := 0 ; end; ~;
 		\If acoustic BA, then start with continuous stim B presentations

@@ -353,6 +353,7 @@ S1,
 		SET G(^G_InterToneIntervalSec) = (^Snd_InterToneInterval / 1000);
 		SET G(^G_MinITI) = ^Def_MinITI;
 		SET G(^G_MaxITI) = ^Def_MaxITI;
+		SET G(^G_SilenceDurationS) = ^Def_SilenceDuration
 
 		SET G(^G_ShocksOn) = ^Def_ShocksOn;
 		SET G(^G_TrialsType) = ^Def_TrialsType;
